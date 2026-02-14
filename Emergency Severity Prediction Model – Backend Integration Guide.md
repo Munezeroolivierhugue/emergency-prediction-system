@@ -88,7 +88,7 @@ The pipeline was trained on the following categories (based on US data, adapted 
 "Rural"
 "Unknown"
 
-###Districts (Rwanda)
+### Districts (Rwanda)
 
 All 30 districts: "Gasabo", "Nyarugenge", "Kicukiro", "Muhanga", "Rubavu", "Musanze", "Kayonza", "Ngoma", "Nyagatare", "Rusizi", "Huye", "Karongi", "Gicumbi", "Rulindo", "Nyamagabe", "Ngororero", "Bugesera", "Gatsibo", "Kamonyi", "Ruhango", "Nyamasheke", "Rutsiro", "Burera", "Gakenke", "Rwamagana", "Nyabihu", "Nyaruguru", "Kirehe", "Muhororo", "Gisagara".
 
@@ -102,124 +102,6 @@ All 30 districts: "Gasabo", "Nyarugenge", "Kicukiro", "Muhanga", "Rubavu", "Musa
 
 We recommend creating a simple Python service (e.g., Flask) that loads the pipeline once and exposes an endpoint. Below is a complete reference implementation.
 
-### 5.1 Setup
-
-python
-import joblib
-import pandas as pd
-import numpy as np
-import json
-from datetime import datetime
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-# Load model artifacts at startup
-pipeline = joblib.load('models/pipeline.joblib')
-with open('models/severity_mapping.json') as f:
-    severity_mapping = json.load(f)
-# severity_mapping: {"0": "Low", "1": "Medium", "2": "High", "3": "Critical"}
-5.2 Prediction Endpoint
-
-python
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        data = request.get_json()
-        dispatcher_input = data['dispatcher']
-        enrichment = data['enrichment']
-        
-        # Combine into one dictionary
-        combined = {**dispatcher_input, **enrichment}
-        
-        # The pipeline expects a DataFrame with columns exactly as during training.
-        # It includes a transformer that extracts hour, day_of_week, etc. from 'timestamp'.
-        # So we can simply pass the raw timestamp.
-        
-        # Create a single-row DataFrame
-        df = pd.DataFrame([combined])
-        
-        # Predict
-        pred_class = pipeline.predict(df)[0]
-        proba = pipeline.predict_proba(df)[0]
-        
-        # Prepare response
-        response = {
-            'predicted_severity': severity_mapping[str(pred_class)],
-            'confidence': float(np.max(proba)),
-            'probabilities': {
-                severity_mapping[str(i)]: float(proba[i])
-                for i in range(len(proba))
-            },
-            'recommended_response': get_recommendation(pred_class),
-            'estimated_response_time': estimate_time(combined['district'], pred_class)
-        }
-        return jsonify(response)
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-
-def get_recommendation(severity_class):
-    recs = {
-        0: 'Routine response – single unit',
-        1: 'Priority response – multiple units',
-        2: 'Urgent response – full team',
-        3: 'Critical – all available resources, notify authorities'
-    }
-    return recs[severity_class]
-
-def estimate_time(district, severity_class):
-    # Simplified logic; replace with actual model or lookup table
-    base_times = {
-        'Gasabo': 10, 'Nyarugenge': 12, 'Kicukiro': 11,
-        # ... defaults for other districts
-    }
-    base = base_times.get(district, 20)
-    multiplier = {0: 1.2, 1: 1.0, 2: 0.8, 3: 0.6}
-    return f"{round(base * multiplier[severity_class])} minutes"
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-5.3 Example Request
-
-json
-POST /predict
-Content-Type: application/json
-
-{
-  "dispatcher": {
-    "incident_type": "Traffic Accident",
-    "district": "Gasabo",
-    "sector": "Kimironko",
-    "caller_severity": "Serious",
-    "timestamp": "2025-03-15T18:30:00Z"
-  },
-  "enrichment": {
-    "weather_condition": "Light Rain",
-    "temperature": 22.5,
-    "humidity": 78,
-    "wind_speed": 5.2,
-    "population_density": 4500,
-    "road_type": "Highway",
-    "is_holiday": false,
-    "historical_incident_density": 12.3
-  }
-}
-5.4 Example Response
-
-json
-{
-  "predicted_severity": "High",
-  "confidence": 0.89,
-  "probabilities": {
-    "Low": 0.02,
-    "Medium": 0.09,
-    "High": 0.89,
-    "Critical": 0.00
-  },
-  "recommended_response": "Urgent response – full team",
-  "estimated_response_time": "12 minutes"
-}
 ## 6. Error Handling
 
 Missing enrichment fields: The pipeline will impute missing values (e.g., median temperature, "Unknown" for categories). However, the backend should log these cases for monitoring.
