@@ -1,5 +1,6 @@
 from django.urls import path
+from .views import PredictSeverityView
 
 urlpatterns = [
-    # Will add prediction endpoint here
+    path('predict/', PredictSeverityView.as_view(), name='predict-severity'),
 ]
