@@ -42,9 +42,9 @@ export default function TrafficChart() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700"
+            className="bg-card p-6 rounded-2xl shadow-sm border border-border"
         >
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+            <h3 className="text-lg font-bold text-foreground mb-6">
                 Incoming Calls (24h)
             </h3>
             <div className="h-80 w-full">
@@ -55,27 +55,27 @@ export default function TrafficChart() {
                     >
                         <defs>
                             <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#DC2626" stopOpacity={0.1} />
-                                <stop offset="95%" stopColor="#DC2626" stopOpacity={0} />
+                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
+                                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                             </linearGradient>
                         </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
                             vertical={true}
-                            stroke="#E2E8F0"
-                            className="dark:stroke-slate-700"
+                            stroke="hsl(var(--border))"
+                            className=""
                         />
                         <XAxis
                             dataKey="time"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: "#94A3B8", fontSize: 12 }}
+                            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
                             interval={2}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: "#94A3B8", fontSize: 12 }}
+                            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
                         />
                         <Tooltip
                             contentStyle={{

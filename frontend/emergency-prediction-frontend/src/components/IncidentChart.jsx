@@ -14,9 +14,9 @@ export default function IncidentChart() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700"
+            className="bg-card p-6 rounded-2xl shadow-sm border border-border"
         >
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-lg font-bold text-foreground mb-4">
                 Incident Types
             </h3>
             <div className="h-80 w-full relative">
@@ -35,27 +35,29 @@ export default function IncidentChart() {
                         </Pie>
                         <Tooltip
                             contentStyle={{
-                                backgroundColor: '#fff',
+                                backgroundColor: 'hsl(var(--card))',
                                 borderRadius: '8px',
-                                border: 'none',
-                                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                border: '1px solid hsl(var(--border))',
+                                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                color: 'hsl(var(--card-foreground))'
                             }}
+                            itemStyle={{ color: 'hsl(var(--card-foreground))' }}
                         />
                         <Legend
                             verticalAlign="bottom"
                             height={36}
                             iconType="square"
-                            formatter={(value) => <span className="text-gray-600 dark:text-slate-300 ml-1">{value}</span>}
+                            formatter={(value) => <span className="text-muted-foreground ml-1">{value}</span>}
                         />
                     </PieChart>
                 </ResponsiveContainer>
 
                 {/* Center Text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
-                    <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                    <span className="text-3xl font-bold text-foreground">
                         1,245
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wide">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide">
                         Total
                     </span>
                 </div>
