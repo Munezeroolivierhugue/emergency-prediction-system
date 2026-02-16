@@ -6,7 +6,7 @@ export default function StatCard({ title, value, subtext, icon: Icon, trend }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="bg-card p-6 rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow"
+            className="relative overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:h-[2px] before:bg-gradient-to-r before:from-transparent before:via-primary before:to-transparent before:content-[''] bg-card p-6 rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow"
         >
             <div className="flex justify-between items-start">
                 <div>
