@@ -28,18 +28,23 @@
 
 @layer base {
   :root {
-    --background: 210 20% 96%; /* Soft off-white */
-    --foreground: 222 47% 11%; /* Dark navy text */
-    --card: 0 0% 100%; /* Pure white */
+    --background: 210 20% 96%;
+    /* Soft off-white */
+    --foreground: 222 47% 11%;
+    /* Dark navy text */
+    --card: 0 0% 100%;
+    /* Pure white */
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 346 84% 61%; /* Using Red as requested: matches #E53935 roughly but let's stick to tailwind red-600 logic or user request. User said "use the red we already have" which is red-600 (#DC2626) -> HSL 0 72% 51% usually. Let's use the HSL for #DC2626 */
-    --primary: 0 72% 51%; 
+    --primary: 346 84% 61%;
+    /* Using Red as requested: matches #E53935 roughly but let's stick to tailwind red-600 logic or user request. User said "use the red we already have" which is red-600 (#DC2626) -> HSL 0 72% 51% usually. Let's use the HSL for #DC2626 */
+    --primary: 0 72% 51%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 15% 92%; /* Light gray */
+    --muted: 210 15% 92%;
+    /* Light gray */
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -52,25 +57,47 @@
   }
 
   .dark {
-    --background: 222 47% 6%; /* Deep navy background */
-    --foreground: 210 40% 95%; /* Near-white text */
-    --card: 222 44% 9%; /* Card surfaces */
+    --background: 222 47% 6%;
+    /* Deep navy background */
+    --foreground: 210 40% 95%;
+    /* Near-white text */
+    --card: 222 44% 9%;
+    /* Card surfaces */
     --card-foreground: 210 40% 95%;
     --popover: 222 47% 6%;
     --popover-foreground: 210 40% 95%;
-    --primary: 0 72% 51%; /* Keep Red */
+    --primary: 0 72% 51%;
+    /* Keep Red */
     --primary-foreground: 210 40% 98%;
-    --secondary: 222 30% 16%; /* Muted navy */
+    --secondary: 222 30% 16%;
+    /* Muted navy */
     --secondary-foreground: 210 40% 98%;
-    --muted: 222 30% 14%; /* Subtle backgrounds */
+    --muted: 222 30% 14%;
+    /* Subtle backgrounds */
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 222 30% 16%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 222 30% 16%; /* Using secondary/muted for border */
+    --border: 222 30% 16%;
+    /* Using secondary/muted for border */
     --input: 222 30% 16%;
     --ring: 0 72% 51%;
   }
 }
 
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(220, 38, 38, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+  }
+}
+
+.critical-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
