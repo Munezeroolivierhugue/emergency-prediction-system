@@ -48,7 +48,7 @@ const SeverityBadge = ({ severity }) => {
 
     switch (severity.toLowerCase()) {
         case "critical":
-            styles = "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400 border border-red-200 dark:border-red-900 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
+            styles = "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400 border border-red-200 dark:border-red-900 critical-pulse";
             break;
         case "high":
             styles = "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 border border-orange-200 dark:border-orange-900";

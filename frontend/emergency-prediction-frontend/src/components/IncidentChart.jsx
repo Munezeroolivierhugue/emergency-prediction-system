@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const data = [
     { name: 'Fire', value: 35, color: '#ef4444' },
-    { name: 'Medical', value: 45, color: '#dc2626' }, // Primary Red (Theme)
+    { name: 'Medical', value: 45, color: '#dc2626' },
     { name: 'Traffic', value: 15, color: '#f97316' },
     { name: 'Rescue', value: 20, color: '#22c55e' },
 ];
