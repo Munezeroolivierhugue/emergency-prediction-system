@@ -5,15 +5,15 @@ import IncidentChart from "../components/IncidentChart";
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] p-6 lg:p-8 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8 transition-colors duration-300">
 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-foreground">
             Command Center
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Real-time emergency monitoring overview
           </p>
         </div>
