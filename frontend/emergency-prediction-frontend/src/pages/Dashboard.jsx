@@ -1,6 +1,7 @@
 import { Activity, AlertTriangle, Truck, Users, Flame } from "lucide-react";
 import StatCard from "../components/StatCard";
 import TrafficChart from "../components/TrafficChart";
+import SeverityChart from "../components/SeverityChart";
 import IncidentChart from "../components/IncidentChart";
 
 export default function Dashboard() {
@@ -55,13 +56,18 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2">
           <TrafficChart />
         </div>
         <div className="lg:col-span-1">
           <IncidentChart />
         </div>
+      </div>
+
+      {/* Severity Trend Section */}
+      <div className="w-full">
+        <SeverityChart />
       </div>
     </div>
   );
