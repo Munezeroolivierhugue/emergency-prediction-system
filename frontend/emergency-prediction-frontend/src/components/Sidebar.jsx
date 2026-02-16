@@ -18,7 +18,7 @@ export default function Sidebar() {
 
     const navItems = [
         { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-        { icon: PlusCircle, label: "New Incident", path: "/new-incident" },
+        { icon: PlusCircle, label: "New Incident", path: "/newincident" },
         { icon: History, label: "History", path: "/history" },
         { icon: Settings, label: "Settings", path: "/settings" },
     ];
