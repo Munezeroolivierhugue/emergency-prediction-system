@@ -2,10 +2,10 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { motion } from 'framer-motion';
 
 const data = [
-    { name: 'Fire', value: 35, color: '#ef4444' },    // Critical (Red)
-    { name: 'Medical', value: 45, color: '#0ea5e9' }, // New Chart-1 (Sky/Cyan)
-    { name: 'Traffic', value: 15, color: '#f97316' }, // High (Orange)
-    { name: 'Rescue', value: 20, color: '#22c55e' },  // Low (Green)
+    { name: 'Fire', value: 35, color: '#ef4444' },
+    { name: 'Medical', value: 45, color: '#dc2626' }, // Primary Red (Theme)
+    { name: 'Traffic', value: 15, color: '#f97316' },
+    { name: 'Rescue', value: 20, color: '#22c55e' },
 ];
 
 export default function IncidentChart() {

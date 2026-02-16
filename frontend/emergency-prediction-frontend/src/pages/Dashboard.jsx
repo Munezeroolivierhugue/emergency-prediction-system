@@ -3,6 +3,7 @@ import StatCard from "../components/StatCard";
 import TrafficChart from "../components/TrafficChart";
 import SeverityChart from "../components/SeverityChart";
 import IncidentChart from "../components/IncidentChart";
+import RecentIncidents from "../components/RecentIncidents";
 
 export default function Dashboard() {
   return (
@@ -66,8 +67,13 @@ export default function Dashboard() {
       </div>
 
       {/* Severity Trend Section */}
-      <div className="w-full">
+      <div className="w-full mb-8">
         <SeverityChart />
+      </div>
+
+      {/* Recent Incidents Section */}
+      <div className="w-full">
+        <RecentIncidents />
       </div>
     </div>
   );
