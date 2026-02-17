@@ -12,6 +12,7 @@ node_modules/
 dist/
 .DS_Store
 package-lock.json
+emergencyPredictionModel/
 
 # Data
 data/
@@ -22,3 +23,5 @@ data/processed/*
 # IDE
 .vscode/
 .idea/
+
+
