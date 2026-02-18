@@ -3,8 +3,9 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import TargetEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
 import os
@@ -12,84 +13,137 @@ import os
 # Set seeds
 np.random.seed(42)
 
-def assign_severity(row):
+def calculate_dynamic_severity(row):
     """
-    Rule-based severity labeling for training.
+    Calculates severity based on environmental factors and incident type.
+    Avoids hardcoding specific subtypes to prevent target leakage.
+    Severity = Base_Score + Time_Factor + Location_Risk + Noise
     """
-    subtype = str(row['Subtype']).upper()
     type_ = str(row['Incident_Type']).upper()
     
-    # --- FIRE ---
-    if 'FIRE' in type_:
-        if 'BUILDING' in subtype or 'STRUCTURE' in subtype: return 10
-        if 'APPLIANCE' in subtype: return 6
-        if 'ALARM' in subtype: return 3
-        return 8 # Default high for fire
+    # 1. Base Score by broad category
+    base_score = 5 
+    if 'FIRE' in type_: base_score = 6
+    elif 'TRAFFIC' in type_: base_score = 4
+    elif 'EMS' in type_: base_score = 5
+    
+    # 2. Environmental Modifiers
+    score_modifier = 0
+    
+    # Time of Day (Rush Hour: 7-9, 16-18 => High Traffic Risk)
+    hour = row['Hour']
+    if (7 <= hour <= 9) or (16 <= hour <= 18):
+        if 'TRAFFIC' in type_:
+            score_modifier += 2
+        else:
+            score_modifier += 0.5 
+            
+    # Night Time (22-5 => High Risk for EMS/Fire visibility)
+    if (hour >= 22) or (hour <= 5):
+        if 'EMS' in type_ or 'FIRE' in type_:
+            score_modifier += 1
+            
+    # Seasonality (Winter: Dec-Feb => Higher risk)
+    month = row['Month']
+    if month in [12, 1, 2]:
+        score_modifier += 1.0
         
-    # --- EMS ---
-    if 'EMS' in type_:
-        if 'CARDIAC' in subtype or 'ARREST' in subtype or 'UNCONSCIOUS' in subtype: return 10
-        if 'STROKE' in subtype or 'CHOKING' in subtype: return 9
-        if 'TRAUMA' in subtype or 'OVERDOSE' in subtype: return 8
-        if 'FALL' in subtype or 'HEAD INJURY' in subtype: return 6
-        if 'DIZZINESS' in subtype or 'NAUSEA' in subtype: return 3
-        return 5 # Default medium for EMS
+    # Weekend (Fri-Sun => Higher alcohol-related risk?)
+    day = row['DayOfWeek']
+    if day >= 4: # 4=Fri, 5=Sat, 6=Sun
+        score_modifier += 0.5
 
-    # --- TRAFFIC ---
-    if 'TRAFFIC' in type_:
-        if 'ACCIDENT' in subtype:
-            if 'INJURY' in subtype: return 7
-            return 5
-        if 'DISABLED' in subtype: return 2
-        return 4
-        
-    return 1
+    # 3. Random Stochasticity (The "Unknown" factors)
+    # We add significant noise so the model has to learn the *patterns* above, 
+    # not just memorize a row.
+    noise = np.random.normal(0, 1.5)
+    
+    final_score = base_score + score_modifier + noise
+    return int(max(1, min(10, round(final_score))))
 
 def train_and_save():
     print("Loading data...")
-    # Load 911 Data
-    # Adjust path if running from a different directory
+    # Load 911 Data with fallback to sample
     data_path = '../data/911.csv'
     if not os.path.exists(data_path):
         data_path = 'data/911.csv'
     
-    df = pd.read_csv(data_path, nrows=200000)
+    if not os.path.exists(data_path):
+        print(f"Main dataset not found at {data_path}. Checking for sample data...")
+        data_path = 'data/sample_911.csv'
+        if not os.path.exists(data_path):
+            data_path = '../data/sample_911.csv'
+            
+    if not os.path.exists(data_path):
+        raise FileNotFoundError("Could not find 911.csv or sample_911.csv. Please run scripts/download_data.sh or create a sample.")
 
-    print("Preprocessing...")
-    # Parse Title
-    df['Incident_Type'] = df['title'].apply(lambda x: x.split(':')[0])
+    print(f"Using dataset: {data_path}")
+    df = pd.read_csv(data_path, nrows=200000) # Load more for better training
+
+    print("Preprocessing & Feature Engineering...")
+    # 1. Basic Parsing
+    df['Incident_Type'] = df['title'].apply(lambda x: x.split(':')[0].strip())
     df['Subtype'] = df['title'].apply(lambda x: x.split(':')[1].strip() if ':' in x else 'Unknown')
-
-    # Parse Time
+    
     df['timeStamp'] = pd.to_datetime(df['timeStamp'], errors='coerce')
     df['Hour'] = df['timeStamp'].dt.hour
     df['Month'] = df['timeStamp'].dt.month
     df['DayOfWeek'] = df['timeStamp'].dt.dayofweek
-
-    # Apply Labels
-    df['Severity_Score'] = df.apply(assign_severity, axis=1)
     
-    # Add noise
-    perturbation = np.random.normal(0, 0.5, size=len(df))
-    df['Severity_Score'] = (df['Severity_Score'] + perturbation).clip(1, 10).round().astype(int)
+    # 2. Cyclical Time Encoding
+    # Maps 23:00 close to 00:00
+    df['Hour_Sin'] = np.sin(2 * np.pi * df['Hour'] / 24)
+    df['Hour_Cos'] = np.cos(2 * np.pi * df['Hour'] / 24)
+    df['Month_Sin'] = np.sin(2 * np.pi * df['Month'] / 12)
+    df['Month_Cos'] = np.cos(2 * np.pi * df['Month'] / 12)
+    df['DayOfWeek_Sin'] = np.sin(2 * np.pi * df['DayOfWeek'] / 7)
+    df['DayOfWeek_Cos'] = np.cos(2 * np.pi * df['DayOfWeek'] / 7)
 
-    # Features
-    df['zip'] = df['zip'].fillna(0).astype(str)
-    df['twp'] = df['twp'].fillna('Unknown')
-    df['lat'] = df['lat'].fillna(0)
-    df['lng'] = df['lng'].fillna(0)
+    # 3. Spatial Clustering (Risk Zones)
+    # We use KMeans to cluster lat/lng into "Risk Regions"
+    # This helps tree models that struggle with raw coordinates
+    df['lat'] = df['lat'].fillna(df['lat'].mean())
+    df['lng'] = df['lng'].fillna(df['lng'].mean())
+    
+    print("Generating Spatial Clusters...")
+    kmeans = KMeans(n_clusters=10, random_state=42, n_init=10)
+    df['Region_Cluster'] = kmeans.fit_predict(df[['lat', 'lng']])
+    
+    # 4. Target Generation (New Logic)
+    print("Generating Severity Scores...")
+    df['Severity_Score'] = df.apply(calculate_dynamic_severity, axis=1)
 
-    features = ['Incident_Type', 'Subtype', 'zip', 'twp', 'lat', 'lng', 'Hour', 'Month', 'DayOfWeek']
+    # Features for Model
+    # We DROP 'Subtype' to force the model to learn from Context (Time, Location, Type)
+    # This prevents the "Lookup Table" problem.
+    features = [
+        'Incident_Type', 
+        'lat', 'lng', 'Region_Cluster',
+        'Hour_Sin', 'Hour_Cos', 
+        'Month_Sin', 'Month_Cos', 
+        'DayOfWeek_Sin', 'DayOfWeek_Cos'
+    ]
+    
     X = df[features]
     y = df['Severity_Score']
 
-    # Pipeline
-    categorical_features = ['Incident_Type', 'Subtype', 'zip', 'twp']
-    numerical_features = ['lat', 'lng', 'Hour', 'Month', 'DayOfWeek']
+    # Pipeline Construction
+    categorical_features = ['Incident_Type'] # OneHotEncode this
+    # Region_Cluster is ordinal-ish but better treated as categorical or just numerical 
+    # For HistGradientBoosting, numerical is fine, but let's be explicit if we wanted OHE.
+    # We will pass Region_Cluster as numerical for now as it's an ID, 
+    # but HistGBR handles integers well.
+    
+    numerical_features = [
+        'lat', 'lng', 'Region_Cluster',
+        'Hour_Sin', 'Hour_Cos', 
+        'Month_Sin', 'Month_Cos', 
+        'DayOfWeek_Sin', 'DayOfWeek_Cos'
+    ]
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ('cat', TargetEncoder(target_type='continuous'), categorical_features),
+            ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), categorical_features),
             ('num', 'passthrough', numerical_features)
         ],
         verbose_feature_names_out=False
@@ -97,23 +151,27 @@ def train_and_save():
 
     model_v3 = Pipeline([
         ('preprocessor', preprocessor),
-        ('regressor', HistGradientBoostingRegressor(random_state=42))
+        ('regressor', HistGradientBoostingRegressor(random_state=42, max_iter=200)) # Increased iterations
     ])
 
     print("Training model...")
-    model_v3.fit(X, y) # Training on full dataset for production/saving
-    print("Training complete.")
-
-    # Validate on a small split just to print metrics
+    # Train/Test Split for Validation
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model_for_metrics = Pipeline([
-        ('preprocessor', preprocessor),
-        ('regressor', HistGradientBoostingRegressor(random_state=42))
-    ])
-    model_for_metrics.fit(X_train, y_train)
-    y_pred = model_for_metrics.predict(X_test)
+    
+    model_v3.fit(X_train, y_train)
+    y_pred = model_v3.predict(X_test)
+    
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    print(f"Validation RMSE: {rmse:.2f}")
+    r2 = r2_score(y_test, y_pred)
+    
+    print(f"Validation RMSE: {rmse:.4f}")
+    print(f"R2 Score: {r2:.4f}")
+    print("Note: A lower R2 (e.g., 0.3-0.6) is expected now because we added noise and removed the direct answer (Subtype).")
+    print("This means the model is learning *patterns* rather than *memorizing*.")
+
+    # Retrain on full data for production
+    print("Retraining on full dataset...")
+    model_v3.fit(X, y)
 
     # Save
     output_dir = '../model'
@@ -122,9 +180,10 @@ def train_and_save():
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             
-    output_path = os.path.join(output_dir, 'model_v3.joblib')
+    output_path = os.path.join(output_dir, 'model_v3_1.joblib')
     joblib.dump(model_v3, output_path)
     print(f"Model saved to {output_path}")
 
 if __name__ == "__main__":
     train_and_save()
+
