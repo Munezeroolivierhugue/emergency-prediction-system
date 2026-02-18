@@ -13,7 +13,7 @@ Dataset: [Kaggle 911 Calls - Montgomery County, PA](https://www.kaggle.com/mchir
 |------|-----------|------------------|----------------|-----------|
 | Backend Lead | Joseph Manizabayo | Core API, ML integration, prediction endpoint | `feature/model-api-endpoint` | CARD-07, CARD-11 |
 | Developer 1 | Henriette Kayitesi | Analytics endpoints, dashboard data, resource optimization | `feature/historical-data-api` | CARD-12 |
-| Developer 2 | [Name] | Authentication, deployment, data pipeline | `chore/database-setup` | CARD-16 |
+| Developer 2 | [Gloria Mukundente] | Authentication, deployment, data pipeline | `chore/database-setup` | CARD-16 |
 
 ---
 
