@@ -365,7 +365,7 @@ Example commit messages:
 ### CARD-16: Database Setup and Data Loading
 Priority: Enhancement
 Branch: `chore/database-setup`
-Owner: Developer 2
+Owner: Gloria Mukundente
 
 Files:
 - `incidents/management/commands/load_incidents.py` (to be created)
