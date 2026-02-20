@@ -64,9 +64,9 @@ import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
-IN  = './cleaned.csv'
-OUT = './panel.csv'
-LOG = './02_panel_log.txt'
+IN  = 'processed/cleaned.csv'
+OUT = 'processed/panel.csv'
+LOG = 'logs/02_panel_log.txt'
 
 lines = []
 def log(msg=''):
