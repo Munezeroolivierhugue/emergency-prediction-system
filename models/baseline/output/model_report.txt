@@ -1,0 +1,46 @@
+=================================================================
+SENTINEL  |  Step 3: Hotspot Prediction Model
+=================================================================
+
+[DATA]   11,520 cell-month observations
+         40 unique grid cells
+         288 monthly periods
+         Hotspot rate: 9.5%  (1,096 hotspot / 11,520 total)
+
+[FEATURES]  35 features, all computed from past data only
+
+[SPLIT]  Train: 9,600 cell-months  (2002–2021)  hotspot rate=9.6%
+         Test:  1,920  cell-months  (2022–2025)  hotspot rate=9.0%
+
+[NAIVE]  Persistence baseline AUC: 0.6740
+         (Predict: hotspot this month ↔ was hotspot last month)
+
+[TRAINING]
+  Logistic Regression     AUC=0.8824  F1=0.4026  Prec=0.2811  Rec=0.7093
+  Decision Tree           AUC=0.8676  F1=0.4100  Prec=0.2805  Rec=0.7616
+  Random Forest           AUC=0.8865  F1=0.4431  Prec=0.3343  Rec=0.6570
+  Gradient Boosting       AUC=0.8807  F1=0.4939  Prec=0.8133  Rec=0.3547
+
+  🏆  Best: Random Forest  (AUC=0.8865  vs naive=0.6740  Δ=+0.2125)
+
+[CHARTS]
+  01_roc_pr_curves.png
+  02_model_comparison.png
+  03_confusion_matrices.png
+  04_feature_importance.png
+  05_threshold_analysis.png
+  06_hotspot_map.png
+  07_performance_over_time.png
+  08_crime_patterns.png
+
+=================================================================
+HOTSPOT PREDICTION — FINAL RESULTS TABLE
+=================================================================
+  Naive persistence baseline AUC: 0.6740
+  Model                      AUC      F1    Prec     Rec     Acc
+  ----------------------------------------------------------
+  Random Forest ★         0.8865  0.4431  0.3343  0.6570  0.8521  +0.2125 vs naive
+  Logistic Regression     0.8824  0.4026  0.2811  0.7093  0.8115
+  Gradient Boosting       0.8807  0.4939  0.8133  0.3547  0.9349
+  Decision Tree           0.8676  0.4100  0.2805  0.7616  0.8036
+=================================================================
