@@ -33,9 +33,9 @@ import pandas as pd
 import numpy as np
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-RAW = './chicago_crime_data1.csv'
-OUT = './cleaned.csv'
-LOG = './01_cleaning_log.txt'
+RAW = 'raw/chicago_crime_data1.csv'
+OUT = 'processed/cleaned.csv'
+LOG = 'logs/01_cleaning_log.txt'
 
 lines = []
 def log(msg=''):
