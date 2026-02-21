@@ -12,7 +12,7 @@ const NewIncident = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [errors, setErrors] = useState({});
-    const [analysisResult, setAnalysisResult] = useState(null);
+    const [result, setResult] = useState(null);
 
     // Update time every second
     useEffect(() => {
@@ -34,53 +34,33 @@ const NewIncident = () => {
         }
     };
 
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.incidentType) newErrors.incidentType = "Incident type is required";
-        if (!formData.location) newErrors.location = "Location is required";
-        if (!formData.description) newErrors.description = "Description is required";
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
+
+        const newErrors = {};
+        if (!formData.incidentType) newErrors.incidentType = "Please select an incident type";
+        if (!formData.location) newErrors.location = "Location is required";
+        if (!formData.description) newErrors.description = "Description is required";
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+        setErrors({});
 
         setLoading(true);
-        setAnalysisResult(null);
+        setResult(null);
 
         // Simulate AI analysis delay
         setTimeout(() => {
             setLoading(false);
             setSuccess(true);
-            setAnalysisResult({
+            setResult({
                 severity: "CRITICAL",
-                confidence: 94,
-                recommendation: "Dispatch 3 Units"
+                confidence: "94%",
+                recommended_response: "Dispatch 3 Units"
             });
         }, 2000);
-    };
-
-    const handleReset = () => {
-        setFormData({
-            incidentType: "",
-            location: "",
-            dateTime: new Date().toLocaleString(),
-            description: "",
-        });
-        setSuccess(false);
-        setAnalysisResult(null);
-        setErrors({});
-    };
-
-    const getSeverityStyles = (severity) => {
-        switch (severity) {
-            case "CRITICAL": return "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400 border-red-200 dark:border-red-900";
-            case "HIGH": return "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 border-orange-200 dark:border-orange-900";
-            case "LOW": return "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400 border-green-200 dark:border-green-900";
-            default: return "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400 border-gray-200 dark:border-slate-700";
-        }
     };
 
     return (
@@ -111,14 +91,12 @@ const NewIncident = () => {
                                 onChange={handleChange}
                                 className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.incidentType ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all appearance-none`}
                             >
-                                <option value="">Select type...</option>
-                                <option value="Fire">Fire / Smoke</option>
-                                <option value="Medical">Medical Emergency</option>
-                                <option value="Rescue">Rescue</option>
+                                <option value="">-- Select Type --</option>
+                                <option value="EMS">EMS</option>
+                                <option value="Fire">Fire</option>
                                 <option value="Traffic">Traffic</option>
-                                <option value="Other">Other</option>
                             </select>
-                            {errors.incidentType && <p className="text-red-500 text-xs mt-1">{errors.incidentType}</p>}
+                            {errors.incidentType && <p style={{ color: 'red', fontSize: '12px' }}>{errors.incidentType}</p>}
                         </div>
 
                         {/* Location */}
@@ -135,7 +113,7 @@ const NewIncident = () => {
                                 onChange={handleChange}
                                 className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.location ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all`}
                             />
-                            {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
+                            {errors.location && <p style={{ color: 'red', fontSize: '12px' }}>{errors.location}</p>}
                         </div>
                     </div>
 
@@ -166,13 +144,13 @@ const NewIncident = () => {
                             onChange={handleChange}
                             className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.description ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none`}
                         ></textarea>
-                        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                        {errors.description && <p style={{ color: 'red', fontSize: '12px' }}>{errors.description}</p>}
                     </div>
 
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        disabled={loading || !!analysisResult}
+                        disabled={loading || !!result}
                         className={`w-full flex items-center justify-center space-x-3 py-4 rounded-xl font-bold text-lg transition-all transform active:scale-[0.98] ${success
                             ? "bg-green-500 text-white"
                             : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/20"
@@ -199,38 +177,54 @@ const NewIncident = () => {
             </div>
 
             {/* Analysis Result Panel */}
-            {analysisResult && (
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500">
+            {result && (
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-500 mt-6">
                     <div className="p-8 space-y-6">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI Analysis Result</h3>
-                            <span className={`px-4 py-1.5 rounded-full text-sm font-bold border ${getSeverityStyles(analysisResult.severity)}`}>
-                                {analysisResult.severity}
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Zap className="text-blue-500" size={20} />
+                                AI Analysis Result
+                            </h3>
+                            <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border transition-all shadow-sm ${result.severity === 'CRITICAL'
+                                ? "bg-red-500 text-white border-red-400 shadow-red-500/20 animate-pulse"
+                                : result.severity === 'HIGH'
+                                    ? "bg-orange-500 text-white border-orange-400 shadow-orange-500/20"
+                                    : "bg-green-500 text-white border-green-400 shadow-green-500/20"
+                                }`}>
+                                🚨 {result.severity}
                             </span>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700">
-                                <p className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-1">AI Confidence Score</p>
-                                <p className="text-2xl font-black text-blue-600 dark:text-blue-400">{analysisResult.confidence}%</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700/50 transition-all hover:bg-gray-100 dark:hover:bg-slate-800">
+                                <p className="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2">AI Confidence</p>
+                                <div className="flex items-end gap-2">
+                                    <p className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{result.confidence}</p>
+                                    <p className="text-xs text-blue-500/60 dark:text-blue-400/60 mb-1 font-bold uppercase">Accuracy</p>
+                                </div>
                             </div>
-                            <div className="p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-800">
-                                <p className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-1">Recommended Response</p>
-                                <p className="text-lg font-bold text-gray-900 dark:text-white">{analysisResult.recommendation}</p>
+                            <div className="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700/50 transition-all hover:bg-gray-100 dark:hover:bg-slate-800">
+                                <p className="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2">Recommended Response</p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{result.recommended_response}</p>
                             </div>
                         </div>
 
-                        <div className="flex grid-cols-2 gap-4">
+                        <div className="flex items-center gap-4 pt-2">
                             <button
-                                onClick={() => alert("Dispatching units...")}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-colors"
+                                onClick={() => alert('Dispatched!')}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-[0.98] shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
                             >
+                                <CheckCircle2 size={18} />
                                 Confirm & Dispatch
                             </button>
                             <button
-                                onClick={handleReset}
-                                className="flex-1 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 py-3 rounded-xl font-bold transition-colors"
+                                onClick={() => {
+                                    setResult(null);
+                                    setSuccess(false);
+                                }}
+                                className="px-6 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
                             >
+                                <Zap size={18} className="opacity-50" />
                                 Ignore
                             </button>
                         </div>
