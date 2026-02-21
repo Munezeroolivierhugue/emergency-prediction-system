@@ -1,4 +1,6 @@
 #!/bin/bash
+# NOTE: This script requires a Unix-like environment (Linux, macOS, WSL, or Git Bash on Windows).
+# Windows users: use WSL, Git Bash, or run the equivalent scripts/download_data.bat instead.
 
 # Emergency Prediction System - Data Download Script
 

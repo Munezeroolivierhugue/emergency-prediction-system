@@ -17,6 +17,7 @@ emergencyPredictionModel
 # Data
 data/
 !data/raw/.gitkeep
+!data/sample_911.csv
 data/processed/*
 !data/processed/.gitkeep
 

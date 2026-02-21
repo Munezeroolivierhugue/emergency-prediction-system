@@ -128,14 +128,12 @@ def train_and_save():
     y = df['Severity_Score']
 
     # Pipeline Construction
-    categorical_features = ['Incident_Type'] # OneHotEncode this
-    # Region_Cluster is ordinal-ish but better treated as categorical or just numerical 
-    # For HistGradientBoosting, numerical is fine, but let's be explicit if we wanted OHE.
-    # We will pass Region_Cluster as numerical for now as it's an ID, 
-    # but HistGBR handles integers well.
+    # Region_Cluster: KMeans IDs have no inherent order (Cluster 3 is not
+    # "between" 2 and 4), so One-Hot Encoding is the correct treatment.
+    categorical_features = ['Incident_Type', 'Region_Cluster']
     
     numerical_features = [
-        'lat', 'lng', 'Region_Cluster',
+        'lat', 'lng',
         'Hour_Sin', 'Hour_Cos', 
         'Month_Sin', 'Month_Cos', 
         'DayOfWeek_Sin', 'DayOfWeek_Cos'
