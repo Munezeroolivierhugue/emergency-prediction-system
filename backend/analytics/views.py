@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from incidents.models import Incident
@@ -19,3 +20,8 @@ class StatisticsView(APIView):
             "by_type": by_type,
             "by_severity": by_severity
         })
+=======
+from django.shortcuts import render
+
+# Create your views here.
+>>>>>>> origin/dev
