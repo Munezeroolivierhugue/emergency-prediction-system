@@ -9,7 +9,7 @@ Output: data/processed/incidents_cleaned.csv
 Source dataset:
     Montgomery County PA 911 Emergency Calls
     https://www.kaggle.com/datasets/mchirico/montcoalert
-    145,518 records  |  2015-12-10 → 2016-12-19
+    663,523 records  |  2015-12-10 → 2020-07-29
 
 Raw columns (9):
     lat        — WGS84 latitude (no nulls)
