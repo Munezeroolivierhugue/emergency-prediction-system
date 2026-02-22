@@ -31,7 +31,7 @@ Zero-call months are included as negative training examples.
 Target variable
 ---------------
 is_hotspot = 1 if township-month call volume ≥ 75th percentile
-             of all non-zero township-months
+            of all non-zero township-months
 is_hotspot = 0 otherwise
 
 Feature engineering — no leakage
