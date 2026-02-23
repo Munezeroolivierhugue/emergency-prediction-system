@@ -109,6 +109,14 @@ def train_and_save():
     kmeans = KMeans(n_clusters=10, random_state=42, n_init=10)
     df['Region_Cluster'] = kmeans.fit_predict(df[['lat', 'lng']])
     
+    # Save KMeans model alongside the XGBoost model
+    output_dir_kmeans = '../model'
+    if not os.path.exists(output_dir_kmeans):
+        output_dir_kmeans = 'model'
+    kmeans_path = os.path.join(output_dir_kmeans, 'kmeans.pkl')
+    joblib.dump(kmeans, kmeans_path)
+    print(f"KMeans model saved to {kmeans_path}")
+    
     # 4. Target Generation (New Logic)
     print("Generating Severity Scores...")
     df['Severity_Score'] = df.apply(calculate_dynamic_severity, axis=1)
