@@ -8,6 +8,7 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import RandomizedSearchCV, KFold
 from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.utils.class_weight import compute_sample_weight
 import joblib
 import os
 
@@ -114,6 +115,9 @@ def train_and_save():
     print("Generating Severity Scores...")
     df['Severity_Score'] = df.apply(calculate_dynamic_severity, axis=1)
 
+    print("Calculating Sample Weights to address class imbalance...")
+    sample_weights_all = compute_sample_weight(class_weight='balanced', y=df['Severity_Score'])
+
     # Features for Model
     # We DROP 'Subtype' to force the model to learn from Context (Time, Location, Type)
     # This prevents the "Lookup Table" problem.
@@ -177,10 +181,12 @@ def train_and_save():
 
     print("Training model with RandomizedSearchCV...")
     # Train/Test Split for Final Holdout Validation
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test, sw_train, sw_test = train_test_split(
+        X, y, sample_weights_all, test_size=0.2, random_state=42
+    )
     
     # Fit the search object (this performs the CV and tuning)
-    search.fit(X_train, y_train)
+    search.fit(X_train, y_train, regressor__sample_weight=sw_train)
     
     print(f"Best Parameters found: {search.best_params_}")
     
@@ -198,7 +204,7 @@ def train_and_save():
 
     # Retrain on full data for production using the best parameters
     print("Retraining BEST model on full dataset...")
-    best_model.fit(X, y)
+    best_model.fit(X, y, regressor__sample_weight=sample_weights_all)
 
     # Save as .pkl instead of .joblib
     output_dir = '../model'
