@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-from django.test import TestCase
-
-# Create your tests here.
-=======
 from unittest.mock import patch
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -102,4 +97,3 @@ class PredictSeverityViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn("An unexpected error occurred", response.data['error'])
->>>>>>> origin/dev
