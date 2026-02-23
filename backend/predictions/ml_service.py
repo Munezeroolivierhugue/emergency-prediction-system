@@ -91,9 +91,25 @@ class MLService:
         else:
             severity = "Low"
 
+        # Confidence: pseudo-confidence based on distance from nearest boundary
+        raw_pred = float(prediction)
+        branches = [3.5, 5.5, 7.5]
+        min_distance = min(abs(raw_pred - b) for b in branches)
+        # Distance ranges roughly 0 to 2; normalize to 0.5 - 1.0 confidence
+        confidence = round(min(1.0, 0.5 + min_distance * 0.1), 2)
+
+        # Recommendation Mapping
+        RESPONSE_MAP = {
+            'Critical': 'Dispatch 3+ Units — Immediate',
+            'High': 'Dispatch 2 Units — Priority',
+            'Medium': 'Dispatch 1 Unit — Standard',
+            'Low': 'Monitor — No dispatch needed'
+        }
+
         return {
             "severity": severity,
-            "confidence": None  # Regression model — no probability output
+            "confidence": confidence,
+            "recommended_response": RESPONSE_MAP[severity]
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.
