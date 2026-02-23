@@ -18,7 +18,7 @@ Open your Command Prompt (`cmd`) or PowerShell inside your repository's root dir
 ```cmd
 pip install -r requirements.txt
 ```
-*(Note: XGBoost installs beautifully on Windows because it ships with pre-compiled binaries. No extra C++ tools required!)*
+*(Note: XGBoost and LightGBM install beautifully on Windows because they ship with pre-compiled binaries. No extra C++ tools required!)*
 
 ## Step 3: Train the Model
 Navigate to the `notebook/` folder (or run it from the root):
@@ -28,14 +28,15 @@ python notebook/train_model.py
 
 ### What to expect:
 1.  **Preprocessing & Engineering**: The script will read the data and start creating the spatial/time features.
-2.  **K-Fold & Grid Search**: The script will begin training using K-Fold Validation. It will run dozens of combinations of parameters. **This can take several minutes** depending on your CPU speed.
-3.  **Output**: Once finished, it will print out the best algorithm parameters found and the model's final `RMSE` and `R2 Score`. 
+2.  **Addressing Class Imbalance**: The script calculates sample weights for extreme severity occurrences during preprocessing.
+3.  **K-Fold & Randomized Search**: The script will begin training using K-Fold Validation and Randomized Grid Search. It will run dozens of combinations of parameters. **This can take several minutes** depending on your CPU speed.
+4.  **Output**: Once finished, it will print out the best algorithm parameters found and the model's final `RMSE` and `R2 Score`. 
 4.  **Export**: The winning model will be saved as **`model/best_advanced_model.pkl`**.
 
 ## Final Step 
 After the `.pkl` file generates on your Windows PC, you can commit it back to your branch or upload it straight to your cloud storage! 
 ```cmd
 git add model/best_advanced_model.pkl
-git commit -m "Add trained XGBoost model"
+git commit -m "Add trained advanced model"
 git push origin model/advanced-development
 ```
