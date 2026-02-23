@@ -1,8 +1,8 @@
 """
 SENTINEL — 911 Hotspot Prediction System
 =========================================
-Step : Baseline Hotspot Prediction Model
-File  : models/baseline/hotspot_model.py
+Step 3: Baseline Hotspot Prediction Model
+File  : models/baseline/03_hotspot_model.py
 Input : data/processed/panel.csv
 Output: models/baseline/output/results.json
         models/baseline/output/charts/*.png
@@ -588,10 +588,57 @@ output = {
     'features':   {'count': len(FEATURES), 'names': FEATURES},
     'models':     results,
 }
-with open('models/baseline/output/results.json', 'w') as f:
+with open('models/baseline/output/results.json', 'w', encoding='utf-8') as f:
     json.dump(output, f, indent=2)
 with open('models/baseline/output/model_report.txt', 'w', encoding='utf-8') as f:
     f.write('\n'.join(lines))
+
+# ── Save models to disk ───────────────────────────────────────────────────────
+import pickle, datetime
+
+os.makedirs('models/baseline/output/saved_models', exist_ok=True)
+
+# Save all trained models
+for name, model in MODELS.items():
+    safe_name = name.lower().replace(' ', '_')
+    pkl_path  = f'models/baseline/output/saved_models/{safe_name}.pkl'
+    with open(pkl_path, 'wb') as f:
+        pickle.dump(model, f)
+    log(f'✅  Saved:    {pkl_path}')
+
+# Save best model separately for easy loading
+best_safe = best_name.lower().replace(' ', '_')
+best_pkl  = 'models/baseline/output/saved_models/best_model.pkl'
+with open(best_pkl, 'wb') as f:
+    pickle.dump(MODELS[best_name], f)
+log(f'✅  Best model saved separately: {best_pkl}')
+
+# Save model metadata alongside the pkl files
+metadata = {
+    'saved_at':        datetime.datetime.now().isoformat(),
+    'best_model':      best_name,
+    'best_model_file': f'{best_safe}.pkl',
+    'best_thresh':     round(best_t, 3),
+    'features':        FEATURES,
+    'feature_count':   len(FEATURES),
+    'hotspot_threshold_calls': 224,
+    'hotspot_percentile':      75,
+    'trained_on': {
+        'periods': f'{sorted_periods[0]} → {sorted_periods[-n_test - 1]}',
+        'n_rows':  len(train),
+    },
+    'evaluated_on': {
+        'periods': f'{cutoff} → {sorted_periods[-1]}',
+        'n_rows':  len(test),
+    },
+    'model_files': {
+        name.lower().replace(' ', '_') + '.pkl': results[name]
+        for name in MODELS
+    },
+}
+with open('models/baseline/output/saved_models/metadata.json', 'w') as f:
+    json.dump(metadata, f, indent=2)
+log('✅  Metadata: models/baseline/output/saved_models/metadata.json')
 
 log('\n✅  Results:  models/baseline/output/results.json')
 log('✅  Charts:   models/baseline/output/charts/ (8 charts)')
