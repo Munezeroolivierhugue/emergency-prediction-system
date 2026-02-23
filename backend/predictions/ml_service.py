@@ -89,19 +89,21 @@ class MLService:
 
         # Make prediction
         prediction = model.predict(input_df)[0]
-        # Get confidence (probability estimates)
-        confidence_scores = model.predict_proba(input_df)[0]
         
+        # Get confidence (probability estimates)
+        if hasattr(model, 'predict_proba'):
+            confidence_scores = model.predict_proba(input_df)[0]
+            confidence = round(float(confidence_scores[prediction]), 2)
+        else:
+            confidence = None
+
         # The 'prediction' variable holds the index of the predicted class
         # Map the prediction index to a human-readable severity label
         severity = cls.SEVERITY_LABELS[prediction]
-        
-        # Get the confidence for the predicted class
-        confidence = confidence_scores[prediction]
 
         return {
             "severity": severity,
-            "confidence": round(float(confidence), 2)
+            "confidence": confidence
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.
