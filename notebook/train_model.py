@@ -4,7 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.ensemble import HistGradientBoostingRegressor
+from xgboost import XGBRegressor
+from sklearn.model_selection import RandomizedSearchCV, KFold
 from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
@@ -147,39 +148,67 @@ def train_and_save():
         verbose_feature_names_out=False
     ).set_output(transform='pandas')
 
-    model_v3 = Pipeline([
+    model_pipeline = Pipeline([
         ('preprocessor', preprocessor),
-        ('regressor', HistGradientBoostingRegressor(random_state=42, max_iter=200)) # Increased iterations
+        ('regressor', XGBRegressor(random_state=42, n_jobs=-1, objective='reg:squarederror')) # XGBoost for advanced training
     ])
 
-    print("Training model...")
-    # Train/Test Split for Validation
+    print("Setting up K-Fold CV and Hyperparameter Grid...")
+    # 5-Fold Cross Validation
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    
+    # Define hyperparameter space to search
+    param_grid = {
+        'regressor__n_estimators': [100, 200, 300],
+        'regressor__learning_rate': [0.01, 0.05, 0.1],
+        'regressor__max_depth': [3, 5, 7],
+        'regressor__subsample': [0.8, 1.0],
+    }
+
+    search = RandomizedSearchCV(
+        model_pipeline, 
+        param_distributions=param_grid, 
+        n_iter=10,        # Number of combinations to try
+        cv=kf,            # 5-Fold Cross Validation
+        scoring='neg_root_mean_squared_error', 
+        random_state=42,
+        n_jobs=-1         # Use all available CPU cores
+    )
+
+    print("Training model with RandomizedSearchCV...")
+    # Train/Test Split for Final Holdout Validation
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    model_v3.fit(X_train, y_train)
-    y_pred = model_v3.predict(X_test)
+    # Fit the search object (this performs the CV and tuning)
+    search.fit(X_train, y_train)
+    
+    print(f"Best Parameters found: {search.best_params_}")
+    
+    # Retrieve the best model pipeline
+    best_model = search.best_estimator_
+    y_pred = best_model.predict(X_test)
     
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
     r2 = r2_score(y_test, y_pred)
     
-    print(f"Validation RMSE: {rmse:.4f}")
-    print(f"R2 Score: {r2:.4f}")
+    print(f"Holdout Validation RMSE: {rmse:.4f}")
+    print(f"Holdout Validation R2 Score: {r2:.4f}")
     print("Note: A lower R2 (e.g., 0.3-0.6) is expected now because we added noise and removed the direct answer (Subtype).")
     print("This means the model is learning *patterns* rather than *memorizing*.")
 
-    # Retrain on full data for production
-    print("Retraining on full dataset...")
-    model_v3.fit(X, y)
+    # Retrain on full data for production using the best parameters
+    print("Retraining BEST model on full dataset...")
+    best_model.fit(X, y)
 
-    # Save
+    # Save as .pkl instead of .joblib
     output_dir = '../model'
     if not os.path.exists(output_dir):
         output_dir = 'model'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             
-    output_path = os.path.join(output_dir, 'model_v3_1.joblib')
-    joblib.dump(model_v3, output_path)
+    output_path = os.path.join(output_dir, 'best_advanced_model.pkl')
+    joblib.dump(best_model, output_path)
     print(f"Model saved to {output_path}")
 
 if __name__ == "__main__":
