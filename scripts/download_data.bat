@@ -13,7 +13,7 @@ echo Downloading Emergency Dataset...
 set DATA_DIR=data
 if not exist "%DATA_DIR%" mkdir "%DATA_DIR%"
 
-REM 1. 911 Calls
+REM 911 Calls (the only dataset used by train_model.py)
 REM Source: https://www.kaggle.com/datasets/mchirico/montcoalert
 if not exist "%DATA_DIR%\911.csv" (
     echo Downloading 911 Calls dataset...
@@ -24,19 +24,6 @@ if not exist "%DATA_DIR%\911.csv" (
     )
 ) else (
     echo 911.csv already exists. Skipping download.
-)
-
-REM 2. US Accidents (March 2023)
-REM Source: https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents
-if not exist "%DATA_DIR%\US_Accidents_March23.csv" (
-    echo Downloading US Accidents dataset...
-    kaggle datasets download -d sobhanmoosavi/us-accidents -p %DATA_DIR% --unzip
-    if %errorlevel% neq 0 (
-        echo ERROR: Download failed. Check your Kaggle API key and internet connection.
-        exit /b 1
-    )
-) else (
-    echo US_Accidents_March23.csv already exists. Skipping download.
 )
 
 echo.

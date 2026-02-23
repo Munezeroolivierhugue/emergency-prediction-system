@@ -11,16 +11,7 @@ echo "If not, please download the datasets manually from the links below."
 DATA_DIR="data"
 mkdir -p $DATA_DIR
 
-# 1. US Accidents (March 2023)
-# Source: https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents
-if [ ! -f "$DATA_DIR/US_Accidents_March23.csv" ]; then
-    echo "Downloading US Accidents dataset..."
-    kaggle datasets download -d sobhanmoosavi/us-accidents -p $DATA_DIR --unzip
-else
-    echo "US_Accidents_March23.csv already exists."
-fi
-
-# 2. 911 Calls
+# 911 Calls (the only dataset used by train_model.py)
 # Source: https://www.kaggle.com/datasets/mchirico/montcoalert
 if [ ! -f "$DATA_DIR/911.csv" ]; then
     echo "Downloading 911 Calls dataset..."
