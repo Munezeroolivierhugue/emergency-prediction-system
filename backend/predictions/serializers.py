@@ -1,4 +1,12 @@
 from rest_framework import serializers
+from .models import Incident
+
+class IncidentSerializer(serializers.ModelSerializer):
+    """Serializer for the Incident model."""
+    class Meta:
+        model = Incident
+        fields = '__all__'
+        read_only_fields = ['id', 'time']
 
 class PredictionRequestSerializer(serializers.Serializer):
     """

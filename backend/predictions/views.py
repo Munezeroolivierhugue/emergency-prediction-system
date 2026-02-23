@@ -1,30 +1,55 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import AllowAny
 
-from .serializers import PredictionRequestSerializer, PredictionResponseSerializer
+from .serializers import PredictionRequestSerializer, PredictionResponseSerializer, IncidentSerializer
 from .ml_service import MLService
+from .models import Incident
+from .services import get_location_from_coords
 
 class PredictSeverityView(APIView):
     """
     API endpoint to predict the severity of an emergency incident.
-    Requires authentication.
+    Saves the prediction as a new Incident in the database.
     """
-    permission_classes = [AllowAny] # Allow public access
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         """
-        Handles POST requests to predict incident severity.
+        Handles POST requests to predict incident severity and save to database.
         """
         serializer = PredictionRequestSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 prediction_data = MLService.predict_severity(serializer.validated_data)
                 response_serializer = PredictionResponseSerializer(data=prediction_data)
-                response_serializer.is_valid(raise_exception=True) # Validate the output as well
+                response_serializer.is_valid(raise_exception=True)
 
-                return Response(response_serializer.data, status=status.HTTP_200_OK)
+                # Reverse geocode to get location
+                lat = serializer.validated_data['lat']
+                lng = serializer.validated_data['lng']
+                location = get_location_from_coords(lat, lng)
+
+                # Save as new Incident
+                incident = Incident.objects.create(
+                    incident_type=serializer.validated_data['type'],
+                    location=location,
+                    lat=lat,
+                    lng=lng,
+                    severity=prediction_data['severity'],
+                    confidence=str(prediction_data['confidence']) if prediction_data['confidence'] else None,
+                    status='Active'
+                )
+
+                # Return prediction with incident ID
+                response_data = {
+                    **response_serializer.data,
+                    'incident_id': incident.id,
+                    'location': location
+                }
+
+                return Response(response_data, status=status.HTTP_201_CREATED)
             except FileNotFoundError as e:
                 return Response(
                     {"error": f"ML model not found: {e}"},
@@ -36,9 +61,27 @@ class PredictSeverityView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             except Exception as e:
-                # Catch any other unexpected errors during prediction
                 return Response(
                     {"error": f"An unexpected error occurred during prediction: {e}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class IncidentListView(generics.ListAPIView):
+    """
+    API endpoint to list historical incidents with pagination and filtering.
+    """
+    queryset = Incident.objects.all().order_by('-time')
+    serializer_class = IncidentSerializer
+    permission_classes = [AllowAny]
+
+
+class IncidentUpdateView(generics.UpdateAPIView):
+    """
+    API endpoint to update an incident's status.
+    """
+    queryset = Incident.objects.all()
+    serializer_class = IncidentSerializer
+    permission_classes = [AllowAny]
+    http_method_names = ['patch']

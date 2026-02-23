@@ -91,9 +91,18 @@ class MLService:
         else:
             severity = "Low"
 
+        # Pseudo-confidence: based on distance from threshold boundaries
+        # Higher confidence when prediction is far from boundaries (4, 6, 8)
+        boundaries = [4, 6, 8]
+        distances = [abs(severity_score - b) for b in boundaries]
+        min_distance = min(distances)
+        
+        # Normalize to 0-1 range (max distance is ~3 for a 1-10 scale)
+        confidence = min(1.0, 0.5 + (min_distance / 6.0))
+        
         return {
             "severity": severity,
-            "confidence": None  # Regression model — no probability output
+            "confidence": round(confidence, 2)
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.
