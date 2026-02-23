@@ -8,13 +8,8 @@ class MLService:
     _model = None
     _model_path = config('ML_MODEL_PATH', default='ml_models/severity_model.pkl')
     
-    # Define a mapping for days, assuming the model expects numerical input for day
-    DAY_MAPPING = {
-        'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6
-    }
-    
-    # Define severity labels based on problem description
-    SEVERITY_LABELS = ['Low', 'Medium', 'High', 'Critical'] # Assuming this order for model output
+    _kmeans = None
+    _kmeans_path = config('KMEANS_MODEL_PATH', default='ml_models/kmeans.pkl')
 
     @classmethod
     def load_model(cls):
@@ -33,77 +28,72 @@ class MLService:
         return cls._model
 
     @classmethod
+    def load_kmeans(cls):
+        if cls._kmeans is None:
+            if not os.path.exists(cls._kmeans_path):
+                raise FileNotFoundError(f"KMeans model not found at: {cls._kmeans_path}")
+            cls._kmeans = joblib.load(cls._kmeans_path)
+        return cls._kmeans
+
+    @classmethod
     def predict_severity(cls, data: dict) -> dict:
         """
-        Takes incident data, prepares it for the ML model, and returns
-        the predicted severity and confidence score.
-        
-        Args:
-            data (dict): A dictionary containing incident features:
-                         'type', 'hour', 'day', 'lat', 'lng'.
-        
-        Returns:
-            dict: A dictionary with 'severity' and 'confidence'.
+        Prepares features to match the trained XGBoost Pipeline and returns severity + confidence.
+        Input data keys: 'type' (str), 'hour' (int 0-23), 'month' (int 1-12),
+                         'day_of_week' (int 0-6), 'lat' (float), 'lng' (float)
         """
-        model = cls.load_model() # Ensure model is loaded
+        model = cls.load_model()
 
-        # Prepare data for the model
-        # Assuming the model expects a DataFrame with specific columns.
-        # This part is highly dependent on the actual model's training features.
-        
-        # Example: Create a DataFrame.
-        # For 'type', if it's a categorical feature, it likely needs one-hot encoding.
-        # For simplicity, we'll just include it as is or use a placeholder for now.
-        # The actual model integration would require understanding its feature engineering.
+        hour = data['hour']
+        month = data.get('month', 1)         # default to January if not provided
+        day_of_week = data.get('day_of_week', 0)  # default to Monday if not provided
+        lat = data['lat']
+        lng = data['lng']
 
-        # Let's assume the model was trained on features like:
-        # ['hour', 'day_encoded', 'lat', 'lng', 'type_Fire', 'type_EMS', ...]
-        
-        # For now, we'll create a basic DataFrame that might need further processing
-        # depending on the actual model.
-        
+        # Cyclical time encoding (must match train_model.py)
+        hour_sin = np.sin(2 * np.pi * hour / 24)
+        hour_cos = np.cos(2 * np.pi * hour / 24)
+        month_sin = np.sin(2 * np.pi * month / 12)
+        month_cos = np.cos(2 * np.pi * month / 12)
+        dow_sin = np.sin(2 * np.pi * day_of_week / 7)
+        dow_cos = np.cos(2 * np.pi * day_of_week / 7)
+
+        # Spatial cluster — load the KMeans object saved alongside the model
+        kmeans = cls.load_kmeans()
+        region_cluster = int(kmeans.predict([[lat, lng]])[0])
+
         processed_data = {
-            'hour': data['hour'],
-            'day_encoded': cls.DAY_MAPPING.get(data['day'], -1), # -1 for unknown day
-            'lat': data['lat'],
-            'lng': data['lng'],
-            # Placeholder for 'type' encoding. 
-            # In a real scenario, you'd need the exact one-hot encoding columns
-            # used during model training.
-            'type_Fire': 1 if data['type'] == 'Fire' else 0,
-            'type_EMS': 1 if data['type'] == 'EMS' else 0,
-            'type_Traffic': 1 if data['type'] == 'Traffic' else 0,
-            # Add other types as needed by the model
+            'Incident_Type': data['type'],    # "EMS", "Fire", or "Traffic"
+            'lat': lat,
+            'lng': lng,
+            'Region_Cluster': region_cluster,
+            'Hour_Sin': hour_sin,
+            'Hour_Cos': hour_cos,
+            'Month_Sin': month_sin,
+            'Month_Cos': month_cos,
+            'DayOfWeek_Sin': dow_sin,
+            'DayOfWeek_Cos': dow_cos,
         }
-        
-        # Convert to DataFrame, ensuring column order matches model's training data
-        # This is a critical step and needs to align with the actual model.
-        # For a robust solution, you might store feature names during training
-        # and use them here.
-        feature_names = [
-            'hour', 'day_encoded', 'lat', 'lng', 
-            'type_Fire', 'type_EMS', 'type_Traffic'
-        ] # Example feature names
-        
-        input_df = pd.DataFrame([processed_data], columns=feature_names)
 
-        # Make prediction
+        input_df = pd.DataFrame([processed_data])
+
         prediction = model.predict(input_df)[0]
-        
-        # Get confidence (probability estimates)
-        if hasattr(model, 'predict_proba'):
-            confidence_scores = model.predict_proba(input_df)[0]
-            confidence = round(float(confidence_scores[prediction]), 2)
-        else:
-            confidence = None
+        severity_score = round(float(prediction))
+        severity_score = max(1, min(10, severity_score))
 
-        # The 'prediction' variable holds the index of the predicted class
-        # Map the prediction index to a human-readable severity label
-        severity = cls.SEVERITY_LABELS[prediction]
+        # Map numeric score to label
+        if severity_score >= 8:
+            severity = "Critical"
+        elif severity_score >= 6:
+            severity = "High"
+        elif severity_score >= 4:
+            severity = "Medium"
+        else:
+            severity = "Low"
 
         return {
             "severity": severity,
-            "confidence": confidence
+            "confidence": None  # Regression model — no probability output
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.
