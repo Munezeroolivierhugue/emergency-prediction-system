@@ -1,0 +1,99 @@
+{
+  "saved_at": "2026-02-24T02:09:30.295366",
+  "best_model": "Logistic Regression",
+  "best_model_file": "logistic_regression.pkl",
+  "best_thresh": 0.623,
+  "features": [
+    "calls_lag1",
+    "calls_lag2",
+    "calls_lag3",
+    "critical_lag1",
+    "critical_lag2",
+    "critical_lag3",
+    "hotspot_lag1",
+    "hotspot_lag2",
+    "hotspot_lag3",
+    "hotspot_streak",
+    "calls_roll3m",
+    "calls_roll6m",
+    "calls_roll12m",
+    "critical_roll3m",
+    "critical_roll6m",
+    "critical_roll12m",
+    "hotspot_roll3m",
+    "hotspot_roll6m",
+    "hotspot_roll12m",
+    "call_trend_3m",
+    "calls_same_month_ly",
+    "hotspot_same_month_ly",
+    "cumulative_call_rate",
+    "cumulative_hotspot_rate",
+    "month",
+    "quarter",
+    "month_sin",
+    "month_cos",
+    "is_summer",
+    "is_winter"
+  ],
+  "feature_count": 30,
+  "hotspot_threshold_calls": 224,
+  "hotspot_percentile": 75,
+  "trained_on": {
+    "periods": "2016-03 \u2192 2020-04",
+    "n_rows": 3400
+  },
+  "evaluated_on": {
+    "periods": "2020-05 \u2192 2020-07",
+    "n_rows": 204
+  },
+  "model_files": {
+    "logistic_regression.pkl": {
+      "auc": 0.9874,
+      "avg_prec": 0.9592,
+      "accuracy": 0.951,
+      "f1": 0.878,
+      "precision": 0.9,
+      "recall": 0.8571,
+      "tn": 158,
+      "fp": 4,
+      "fn": 6,
+      "tp": 36
+    },
+    "decision_tree.pkl": {
+      "auc": 0.8782,
+      "avg_prec": 0.7798,
+      "accuracy": 0.9167,
+      "f1": 0.7901,
+      "precision": 0.8205,
+      "recall": 0.7619,
+      "tn": 155,
+      "fp": 7,
+      "fn": 10,
+      "tp": 32
+    },
+    "random_forest.pkl": {
+      "auc": 0.9853,
+      "avg_prec": 0.9468,
+      "accuracy": 0.951,
+      "f1": 0.8718,
+      "precision": 0.9444,
+      "recall": 0.8095,
+      "tn": 160,
+      "fp": 2,
+      "fn": 8,
+      "tp": 34
+    },
+    "gradient_boosting.pkl": {
+      "auc": 0.9846,
+      "avg_prec": 0.948,
+      "accuracy": 0.951,
+      "f1": 0.875,
+      "precision": 0.9211,
+      "recall": 0.8333,
+      "tn": 159,
+      "fp": 3,
+      "fn": 7,
+      "tp": 35
+    }
+  }
+}
