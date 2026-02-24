@@ -1,5 +1,6 @@
 from django.urls import path
+from .views import StatisticsView
 
 urlpatterns = [
-    # Will add analytics endpoints here
+    path('statistics/', StatisticsView.as_view(), name='statistics'),
 ]
