@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     LayoutDashboard,
     PlusCircle,
@@ -9,10 +9,12 @@ import {
     Moon
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import toast from "react-hot-toast";
 
 export default function Sidebar() {
     const { dark, toggleTheme } = useTheme();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isActive = (path) => location.pathname === path;
 
@@ -22,6 +24,12 @@ export default function Sidebar() {
         { icon: History, label: "History", path: "/history" },
         { icon: Settings, label: "Settings", path: "/settings" },
     ];
+
+    const handleLogout = () => {
+        // Here you would clear tokens / user state
+        toast.success("Logged out successfully");
+        navigate("/login");
+    };
 
     return (
         <aside className="fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 flex flex-col transition-colors duration-300 z-50">
@@ -105,7 +113,10 @@ export default function Sidebar() {
                 </div>
 
                 {/* Logout */}
-                <button className="flex items-center space-x-3 px-4 py-2 w-full text-left text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-3 px-4 py-2 w-full text-left text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                >
                     <LogOut size={18} />
                     <span className="text-sm">Logout</span>
                 </button>
