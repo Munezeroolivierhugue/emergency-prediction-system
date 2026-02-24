@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 
 from .serializers import PredictionRequestSerializer, PredictionResponseSerializer, IncidentSerializer
 from .ml_service import MLService
-from .models import Incident
+from incidents.models import Incident
 from .services import get_location_from_coords
 
 from drf_spectacular.utils import extend_schema
@@ -35,26 +35,21 @@ class PredictSeverityView(APIView):
                 response_serializer = PredictionResponseSerializer(data=prediction_data)
                 response_serializer.is_valid(raise_exception=True)
 
-                # Reverse geocode to get location
-                lat = serializer.validated_data['lat']
-                lng = serializer.validated_data['lng']
-                location = get_location_from_coords(lat, lng)
-
-                # Save as new Incident
+                # Save as new Incident in the main database
                 incident = Incident.objects.create(
-                    incident_type=serializer.validated_data['type'],
+                    type=serializer.validated_data['type'],
                     location=location,
-                    lat=lat,
-                    lng=lng,
+                    latitude=lat,
+                    longitude=lng,
                     severity=prediction_data['severity'],
-                    confidence=str(prediction_data['confidence']) if prediction_data['confidence'] else None,
+                    confidence=prediction_data['confidence'] if prediction_data['confidence'] else None,
                     status='Active'
                 )
 
-                # Return prediction with incident ID
+                # Return prediction with incident ID. The frontend expects 'INC-' prefix explicitly if we don't have it natively.
                 response_data = {
                     **response_serializer.data,
-                    'incident_id': incident.id,
+                    'incident_id': f"INC-{incident.id}",
                     'location': location
                 }
 
@@ -76,21 +71,3 @@ class PredictSeverityView(APIView):
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class IncidentListView(generics.ListAPIView):
-    """
-    API endpoint to list historical incidents with pagination and filtering.
-    """
-    queryset = Incident.objects.all().order_by('-time')
-    serializer_class = IncidentSerializer
-    permission_classes = [AllowAny]
-
-
-class IncidentUpdateView(generics.UpdateAPIView):
-    """
-    API endpoint to update an incident's status.
-    """
-    queryset = Incident.objects.all()
-    serializer_class = IncidentSerializer
-    permission_classes = [AllowAny]
-    http_method_names = ['patch']
