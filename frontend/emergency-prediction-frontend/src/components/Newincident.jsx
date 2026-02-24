@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Zap, MapPin, Clock, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
-import { incidentService } from "../utils/api";
-import { DUMMY_PREDICTION } from "../utils/dummyData";
 const NewIncident = () => {
     const [formData, setFormData] = useState({
         incidentType: "",
         location: "",
-        dateTime: new Date().toISOString(),
+        dateTime: new Date().toLocaleString(),
         description: "",
     });
 
@@ -20,7 +18,7 @@ const NewIncident = () => {
         const timer = setInterval(() => {
             setFormData((prev) => ({
                 ...prev,
-                dateTime: new Date().toISOString(),
+                dateTime: new Date().toLocaleString(),
             }));
         }, 1000);
         return () => clearInterval(timer);
@@ -35,7 +33,7 @@ const NewIncident = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         const newErrors = {};
@@ -52,41 +50,16 @@ const NewIncident = () => {
         setLoading(true);
         setResult(null);
 
-        try {
-            const now = new Date();
-            const payload = {
-                type: formData.incidentType,
-                hour: now.getHours(),
-                month: now.getMonth() + 1,
-                day_of_week: now.getDay() === 0 ? 6 : now.getDay() - 1, // backend: Mon=0, Sun=6
-                lat: 40.1, // Default for now
-                lng: -75.3, // Default for now
-            };
-
-            const response = await incidentService.predictSeverity(payload);
-            setLoading(false);
-            setSuccess(true);
-
-            // Format response to match display expectations
-            setResult({
-                ...response.data,
-                // If backend returns float 0.85, convert to "85%" for display
-                confidenceDisplay: typeof response.data.confidence === 'number'
-                    ? `${Math.round(response.data.confidence * 100)}%`
-                    : response.data.confidence
-            });
-        } catch (error) {
-            console.error("Prediction error:", error);
-            // Fallback to dummy data for demonstration
+        // Simulate AI analysis delay
+        setTimeout(() => {
             setLoading(false);
             setSuccess(true);
             setResult({
-                ...DUMMY_PREDICTION,
-                confidenceDisplay: typeof DUMMY_PREDICTION.confidence === 'number'
-                    ? `${Math.round(DUMMY_PREDICTION.confidence * 100)}%`
-                    : DUMMY_PREDICTION.confidence
+                severity: "CRITICAL",
+                confidence: "94%",
+                recommended_response: "Dispatch 3 Units"
             });
-        }
+        }, 2000);
     };
 
     return (
@@ -115,7 +88,7 @@ const NewIncident = () => {
                                 name="incidentType"
                                 value={formData.incidentType}
                                 onChange={handleChange}
-                                className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.incidentType ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all appearance-none`}
+                                className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.incidentType ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all appearance-none`}
                             >
                                 <option value="">-- Select Type --</option>
                                 <option value="EMS">EMS</option>
@@ -137,7 +110,7 @@ const NewIncident = () => {
                                 placeholder="e.g. Main St & 5th Ave"
                                 value={formData.location}
                                 onChange={handleChange}
-                                className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.location ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-primary outline-none transition-all`}
+                                className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.location ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all`}
                             />
                             {errors.location && <p style={{ color: 'red', fontSize: '12px' }}>{errors.location}</p>}
                         </div>
@@ -168,7 +141,7 @@ const NewIncident = () => {
                             placeholder="Caller notes: e.g. Smoke visible, smell of gas"
                             value={formData.description}
                             onChange={handleChange}
-                            className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.description ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-primary outline-none transition-all resize-none`}
+                            className={`w-full bg-gray-50 dark:bg-slate-800 border ${errors.description ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'} rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none`}
                         ></textarea>
                         {errors.description && <p style={{ color: 'red', fontSize: '12px' }}>{errors.description}</p>}
                     </div>
@@ -179,7 +152,7 @@ const NewIncident = () => {
                         disabled={loading || !!result}
                         className={`w-full flex items-center justify-center space-x-3 py-4 rounded-xl font-bold text-lg transition-all transform active:scale-[0.98] ${success
                             ? "bg-green-500 text-white"
-                            : "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-lg shadow-red-600/20"
+                            : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/20"
                             } disabled:opacity-70 disabled:cursor-not-allowed`}
                     >
                         {loading ? (
@@ -208,12 +181,12 @@ const NewIncident = () => {
                     <div className="p-8 space-y-6">
                         <div className="flex items-center justify-between">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                <Zap className="text-primary" size={20} />
+                                <Zap className="text-blue-500" size={20} />
                                 AI Analysis Result
                             </h3>
-                            <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border transition-all shadow-sm ${result.severity?.toUpperCase() === 'CRITICAL'
+                            <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border transition-all shadow-sm ${result.severity === 'CRITICAL'
                                 ? "bg-red-500 text-white border-red-400 shadow-red-500/20 animate-pulse"
-                                : result.severity?.toUpperCase() === 'HIGH'
+                                : result.severity === 'HIGH'
                                     ? "bg-orange-500 text-white border-orange-400 shadow-orange-500/20"
                                     : "bg-green-500 text-white border-green-400 shadow-green-500/20"
                                 }`}>
@@ -225,8 +198,8 @@ const NewIncident = () => {
                             <div className="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700/50 transition-all hover:bg-gray-100 dark:hover:bg-slate-800">
                                 <p className="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2">AI Confidence</p>
                                 <div className="flex items-end gap-2">
-                                    <p className="text-3xl font-black text-primary dark:text-red-400 tracking-tight">{result.confidenceDisplay}</p>
-                                    <p className="text-xs text-red-500/60 dark:text-red-400/60 mb-1 font-bold uppercase">Accuracy</p>
+                                    <p className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">{result.confidence}</p>
+                                    <p className="text-xs text-blue-500/60 dark:text-blue-400/60 mb-1 font-bold uppercase">Accuracy</p>
                                 </div>
                             </div>
                             <div className="p-5 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-700/50 transition-all hover:bg-gray-100 dark:hover:bg-slate-800">
@@ -238,7 +211,7 @@ const NewIncident = () => {
                         <div className="flex items-center gap-4 pt-2">
                             <button
                                 onClick={() => alert('Dispatched!')}
-                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-[0.98] shadow-lg shadow-red-600/25 flex items-center justify-center gap-2"
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-[0.98] shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
                             >
                                 <CheckCircle2 size={18} />
                                 Confirm & Dispatch
@@ -259,9 +232,9 @@ const NewIncident = () => {
             )}
 
             {/* Info Alert */}
-            <div className="flex items-start space-x-3 p-4 bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl">
-                <AlertCircle size={20} className="text-primary mt-0.5" />
-                <p className="text-sm text-red-700 dark:text-red-400">
+            <div className="flex items-start space-x-3 p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-xl">
+                <AlertCircle size={20} className="text-blue-500 mt-0.5" />
+                <p className="text-sm text-blue-700 dark:text-blue-400">
                     The AI model analyzes time, location, and description to predict the potential severity of the incident. This helps in prioritizing emergency response.
                 </p>
             </div>
