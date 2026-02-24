@@ -41,9 +41,10 @@ import os
 
 IN  = 'data/raw/911.csv'
 OUT = 'data/processed/incidents_cleaned.csv'
-LOG = 'data/processed/01_cleaning_log.txt'
+LOG = 'data/logs/01_cleaning_log.txt'
 
 os.makedirs('data/processed', exist_ok=True)
+os.makedirs('data/logs', exist_ok=True)
 
 lines = []
 def log(msg=''):

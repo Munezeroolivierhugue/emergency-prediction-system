@@ -47,9 +47,10 @@ warnings.filterwarnings('ignore')
 
 IN  = 'data/processed/incidents_cleaned.csv'
 OUT = 'data/processed/panel.csv'
-LOG = 'data/processed/02_panel_log.txt'
+LOG = 'data/logs/02_panel_log.txt'
 
 os.makedirs('data/processed', exist_ok=True)
+os.makedirs('data/logs', exist_ok=True)  # Make sure the logs directory exists
 
 lines = []
 def log(msg=''):
