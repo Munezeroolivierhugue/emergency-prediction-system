@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'predictions',
     'analytics',
     'users',
+    # API Documentation
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -101,6 +103,14 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Emergency Severity Prediction API',
+    'DESCRIPTION': 'API endpoints for emergency incident predictions, history, and analytics',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 SIMPLE_JWT = {

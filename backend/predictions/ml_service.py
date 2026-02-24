@@ -69,8 +69,14 @@ class MLService:
     _model = None
     _model_path = config('ML_MODEL_PATH', default='ml_models/severity_model.pkl')
     
-    _kmeans = None
-    _kmeans_path = config('KMEANS_MODEL_PATH', default='ml_models/kmeans.pkl')
+    SEVERITY_LABELS = {0: 'Low', 1: 'Medium', 2: 'High', 3: 'Critical'}
+    
+    RESPONSE_MAP = {
+        'Critical': 'Dispatch 3+ Units — Immediate Response',
+        'High':     'Dispatch 2 Units — Priority Response',
+        'Medium':   'Dispatch 1 Unit — Standard Response',
+        'Low':      'Monitor — No Dispatch Needed',
+    }
 
     @classmethod
     def load_model(cls):
@@ -89,19 +95,11 @@ class MLService:
         return cls._model
 
     @classmethod
-    def load_kmeans(cls):
-        if cls._kmeans is None:
-            if not os.path.exists(cls._kmeans_path):
-                raise FileNotFoundError(f"KMeans model not found at: {cls._kmeans_path}")
-            cls._kmeans = joblib.load(cls._kmeans_path)
-        return cls._kmeans
-
-    @classmethod
     def predict_severity(cls, data: dict) -> dict:
         """
-        Prepares features to match the trained XGBoost Pipeline and returns severity + confidence.
-        Input data keys: 'type' (str), 'hour' (int 0-23), 'month' (int 1-12),
-                         'day_of_week' (int 0-6), 'lat' (float), 'lng' (float)
+        Build features matching the RandomForestClassifier trained in
+        notebook/train_model.py → train_api_model().
+        Expected feature order: hour, day_encoded, lat, lng, type_Fire, type_EMS, type_Traffic
         """
         model = cls.load_model()
         # Their previous manual encoding is removed and replaced by the Pipeline wrapper logic
@@ -112,7 +110,7 @@ class MLService:
             'lat':  data.get('lat', 0.0),
             'lng':  data.get('lng', 0.0),
         }
-
+    
         input_df = pd.DataFrame([processed_data])
         
         # --- SHAP Model Pipeline Fix ---

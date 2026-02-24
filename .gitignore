@@ -21,6 +21,9 @@ data/
 data/processed/*
 !data/processed/.gitkeep
 
+# Generated ML Artifacts
+notebook/plots/
+
 # IDE
 .vscode/
 .idea/
