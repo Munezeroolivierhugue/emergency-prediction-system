@@ -635,6 +635,7 @@ metadata = {
         name.lower().replace(' ', '_') + '.pkl': results[name]
         for name in MODELS
     },
+
 }
 with open('models/baseline/output/saved_models/metadata.json', 'w') as f:
     json.dump(metadata, f, indent=2)
