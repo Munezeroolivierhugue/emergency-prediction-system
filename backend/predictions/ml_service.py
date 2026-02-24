@@ -165,7 +165,8 @@ class MLService:
         
         return {
             "severity": severity,
-            "confidence": round(confidence, 2)
+            "confidence": round(confidence, 2),
+            "recommended_response": cls.RESPONSE_MAP.get(severity, "Unknown Response")
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.

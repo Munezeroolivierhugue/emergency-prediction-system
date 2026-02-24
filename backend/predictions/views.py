@@ -31,17 +31,7 @@ class PredictSeverityView(APIView):
         if serializer.is_valid():
             try:
                 prediction_data = MLService.predict_severity(serializer.validated_data)
-                
-                # Save prediction to historical Incident database
-                Incident.objects.create(
-                    type=serializer.validated_data.get('type', 'Unknown'),
-                    latitude=serializer.validated_data.get('lat', 0.0),
-                    longitude=serializer.validated_data.get('lng', 0.0),
-                    severity=prediction_data.get('severity', 'Medium'),
-                    confidence=prediction_data.get('confidence'),
-                    status='Active'
-                )
-                
+
                 response_serializer = PredictionResponseSerializer(data=prediction_data)
                 response_serializer.is_valid(raise_exception=True)
 
