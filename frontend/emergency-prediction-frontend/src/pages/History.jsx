@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
   ChevronDown,
@@ -7,30 +7,12 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { incidentService } from "../utils/api";
+import { DUMMY_INCIDENTS } from "../utils/dummyData";
 
 const SEVERITIES = ["All Severities", "Critical", "High", "Medium", "Low"];
-const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, "All"];
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
-const DUMMY_INCIDENTS = [
-  { id: "INC-1001", incident_type: "Fire", location: "Main St & 5th Ave", time: "12/02/2026, 08:23:00", severity: "CRITICAL", confidence: "94%", status: "Dispatched" },
-  { id: "INC-1002", incident_type: "Medical", location: "Oak Park, Zone B", time: "12/02/2026, 07:45:00", severity: "HIGH", confidence: "87%", status: "Active" },
-  { id: "INC-1003", incident_type: "Traffic", location: "Highway 101, Mile 34", time: "12/02/2026, 07:12:00", severity: "MEDIUM", confidence: "78%", status: "Dispatched" },
-  { id: "INC-1004", incident_type: "Rescue", location: "Riverside Trail", time: "12/02/2026, 06:55:00", severity: "LOW", confidence: "91%", status: "Resolved" },
-  { id: "INC-1005", incident_type: "Fire", location: "Industrial Park E", time: "12/02/2026, 06:30:00", severity: "HIGH", confidence: "82%", status: "Dispatched" },
-  { id: "INC-1006", incident_type: "Medical", location: "Central Mall", time: "12/02/2026, 05:48:00", severity: "LOW", confidence: "95%", status: "Closed" },
-  { id: "INC-1007", incident_type: "Traffic", location: "Elm St & 3rd Ave", time: "12/02/2026, 05:15:00", severity: "MEDIUM", confidence: "72%", status: "Resolved" },
-  { id: "INC-1008", incident_type: "Fire", location: "Sunset Blvd 120", time: "12/02/2026, 04:40:00", severity: "CRITICAL", confidence: "96%", status: "Active" },
-  { id: "INC-1009", incident_type: "Rescue", location: "Lake District", time: "11/02/2026, 23:10:00", severity: "HIGH", confidence: "80%", status: "Closed" },
-  { id: "INC-1010", incident_type: "Fire", location: "Main St & 5th Ave", time: "12/02/2026, 08:23:00", severity: "CRITICAL", confidence: "94%", status: "Dispatched" },
-  { id: "INC-1012", incident_type: "Medical", location: "Oak Park, Zone B", time: "12/02/2026, 07:45:00", severity: "HIGH", confidence: "87%", status: "Active" },
-  { id: "INC-1013", incident_type: "Traffic", location: "Highway 101, Mile 34", time: "12/02/2026, 07:12:00", severity: "MEDIUM", confidence: "78%", status: "Dispatched" },
-  { id: "INC-1014", incident_type: "Rescue", location: "Riverside Trail", time: "12/02/2026, 06:55:00", severity: "LOW", confidence: "91%", status: "Resolved" },
-  { id: "INC-1015", incident_type: "Fire", location: "Industrial Park E", time: "12/02/2026, 06:30:00", severity: "HIGH", confidence: "82%", status: "Dispatched" },
-  { id: "INC-1016", incident_type: "Medical", location: "Central Mall", time: "12/02/2026, 05:48:00", severity: "LOW", confidence: "95%", status: "Closed" },
-  { id: "INC-1017", incident_type: "Traffic", location: "Elm St & 3rd Ave", time: "12/02/2026, 05:15:00", severity: "MEDIUM", confidence: "72%", status: "Resolved" },
-  { id: "INC-1018", incident_type: "Fire", location: "Sunset Blvd 120", time: "12/02/2026, 04:40:00", severity: "CRITICAL", confidence: "96%", status: "Active" },
-  { id: "INC-1019", incident_type: "Rescue", location: "Lake District", time: "11/02/2026, 23:10:00", severity: "HIGH", confidence: "80%", status: "Closed" },
-]
 
 function SeverityBadge({ severity }) {
   // Dark mode: colored pill with dark interior, light border; light mode: softer variant
@@ -38,34 +20,34 @@ function SeverityBadge({ severity }) {
     "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide border transition-colors transition-shadow duration-200";
 
   const severityStyles = {
-    CRITICAL:
+    critical:
       // light
       "border-red-300 bg-red-50 text-red-600 " +
       // dark + hover glow
       "dark:border-red-500 dark:bg-red-500/10 dark:text-red-300 " +
       "hover:bg-red-50 dark:hover:bg-red-500/20 hover:shadow-[0_0_26px_rgba(248,113,113,0.9)]",
-    HIGH:
+    high:
       "border-orange-300 bg-orange-50 text-orange-600 " +
       "dark:border-orange-500 dark:bg-orange-500/10 dark:text-orange-300",
-    MEDIUM:
+    medium:
       "border-amber-300 bg-amber-50 text-amber-600 " +
       "dark:border-amber-500 dark:bg-amber-500/10 dark:text-amber-300",
-    LOW:
+    low:
       "border-emerald-300 bg-emerald-50 text-emerald-600 " +
       "dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300",
   };
 
   const dotColors = {
-    CRITICAL: "bg-red-500",
-    HIGH: "bg-orange-400",
-    MEDIUM: "bg-amber-400",
-    LOW: "bg-emerald-400",
+    critical: "bg-red-500",
+    high: "bg-orange-400",
+    medium: "bg-amber-400",
+    low: "bg-emerald-400",
   };
 
-  const cls = `${base} ${
-    severityStyles[severity] || "border-slate-300 bg-slate-50 text-slate-500"
-  }`;
-  const dot = dotColors[severity] || "bg-slate-400";
+  const key = (severity || "").toLowerCase();
+  const cls = `${base} ${severityStyles[key] || "border-slate-300 bg-slate-50 text-slate-500"
+    }`;
+  const dot = dotColors[key] || "bg-slate-400";
 
   return (
     <span className={cls}>
@@ -76,65 +58,51 @@ function SeverityBadge({ severity }) {
 }
 
 export default function History() {
+  const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [severityFilter, setSeverityFilter] = useState("All Severities");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    const activeSeverity =
-      severityFilter === "All Severities"
-        ? null
-        : severityFilter.toUpperCase();
+  const fetchIncidents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = {
+        page: currentPage,
+        page_size: pageSize,
+      };
+      if (search) params.search = search;
+      if (severityFilter !== "All Severities") params.severity = severityFilter;
 
-    return DUMMY_INCIDENTS.filter((row) => {
-      const matchSearch =
-        !q ||
-        row.id.toLowerCase().includes(q) ||
-        row.location.toLowerCase().includes(q) ||
-        row.incident_type.toLowerCase().includes(q) ||
-        row.severity.toLowerCase().includes(q);
+      const response = await incidentService.getIncidents(params);
+      setIncidents(response.data.results || []);
+      setTotalCount(response.data.count || 0);
+    } catch (error) {
+      console.error("Error fetching incidents:", error);
+      // Fallback to dummy data
+      setIncidents(DUMMY_INCIDENTS);
+      setTotalCount(DUMMY_INCIDENTS.length);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, pageSize, search, severityFilter]);
 
-      const matchSeverity = !activeSeverity || row.severity === activeSeverity;
-
-      return matchSearch && matchSeverity;
-    });
-  }, [search, severityFilter]);
-
-  const totalFiltered = filtered.length;
+  useEffect(() => {
+    fetchIncidents();
+  }, [fetchIncidents]);
 
   useEffect(() => {
     // Reset to first page whenever filters or page size change
     setCurrentPage(1);
   }, [search, severityFilter, pageSize]);
 
-  const pageCount =
-    pageSize === null || totalFiltered === 0
-      ? 1
-      : Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
 
-  const paginated = useMemo(() => {
-    if (pageSize === null) return filtered;
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    return filtered.slice(start, end);
-  }, [filtered, currentPage, pageSize]);
-
-  const startIndex =
-    totalFiltered === 0
-      ? 0
-      : pageSize === null
-      ? 1
-      : (currentPage - 1) * pageSize + 1;
-
-  const endIndex =
-    totalFiltered === 0
-      ? 0
-      : pageSize === null
-      ? totalFiltered
-      : Math.min(totalFiltered, currentPage * pageSize);
+  const startIndex = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endIndex = Math.min(totalCount, currentPage * pageSize);
 
   return (
     <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-[#1A1A1A] dark:text-[#F1F5F9] p-6">
@@ -193,11 +161,10 @@ export default function History() {
                         setSeverityFilter(s);
                         setDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                        severityFilter === s
-                          ? "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white font-medium"
-                          : "text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
-                      }`}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${severityFilter === s
+                        ? "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white font-medium"
+                        : "text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                        }`}
                     >
                       {s}
                     </button>
@@ -239,63 +206,73 @@ export default function History() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((row, i) => (
-                <tr
-                  key={row.id}
-                  className={`border-b border-gray-100 dark:border-slate-700/80 transition-colors ${
-                    i % 2 === 0
-                      ? "bg-white dark:bg-slate-800/30"
-                      : "bg-gray-50/50 dark:bg-slate-800/50"
-                  }`}
-                >
-                  <td className="px-5 py-3.5">
-                    <span className="text-red-500 dark:text-red-400 font-medium cursor-pointer hover:underline">
-                      {row.id}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
-                    {row.incident_type}
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
-                    {row.location}
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
-                    {row.time}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <SeverityBadge severity={row.severity} />
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
-                    {row.confidence}
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
-                    {row.status}
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="py-20 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm text-gray-500">Loading incidents...</span>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : incidents.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-20 text-center text-gray-500">
+                    No incidents match your filters.
+                  </td>
+                </tr>
+              ) : (
+                incidents.map((row, i) => {
+                  const displayId = typeof row.id === 'number' ? `INC-${row.id}` : row.id;
+                  const displayTime = row.timestamp ? new Date(row.timestamp).toLocaleString() : (row.time || "N/A");
+
+                  return (
+                    <tr
+                      key={row.id}
+                      className={`border-b border-gray-100 dark:border-slate-700/80 transition-colors ${i % 2 === 0
+                        ? "bg-white dark:bg-slate-800/30"
+                        : "bg-gray-50/50 dark:bg-slate-800/50"
+                        }`}
+                    >
+                      <td className="px-5 py-3.5">
+                        <span className="text-red-500 dark:text-red-400 font-medium cursor-pointer hover:underline">
+                          {displayId}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                        {row.type || row.incident_type}
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                        {row.location || row.twp || "Unknown"}
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                        {displayTime}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <SeverityBadge severity={row.severity} />
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                        {row.confidence || "N/A"}
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                        {row.status || "Resolved"}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
-        {filtered.length === 0 && (
-          <div className="px-5 py-12 text-center text-gray-500 dark:text-slate-400">
-            No incidents match your filters.
-          </div>
-        )}
-
-        {filtered.length > 0 && (
+        {totalCount > 0 && (
           <div className="flex items-center justify-between gap-4 px-5 py-3 border-t border-gray-100 dark:border-slate-700 text-xs">
             {/* Rows per page selector */}
             <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
               <span className="hidden sm:inline">Rows per page</span>
               <select
-                value={pageSize === null ? "All" : String(pageSize)}
+                value={String(pageSize)}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === "All") {
-                    setPageSize(null);
-                  } else {
-                    setPageSize(Number(value));
-                  }
+                  setPageSize(Number(e.target.value));
                 }}
                 className="h-8 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 pr-6 text-xs text-gray-700 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-500"
               >
@@ -309,7 +286,7 @@ export default function History() {
 
             {/* Range text */}
             <div className="flex-1 text-center text-gray-500 dark:text-slate-400">
-              {startIndex}-{endIndex} of {totalFiltered}
+              {startIndex}-{endIndex} of {totalCount}
             </div>
 
             {/* Pagination controls */}
@@ -317,7 +294,7 @@ export default function History() {
               <button
                 type="button"
                 onClick={() => setCurrentPage(1)}
-                disabled={pageSize === null || currentPage === 1}
+                disabled={currentPage === 1}
                 className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronsLeft className="w-4 h-4" />
@@ -325,7 +302,7 @@ export default function History() {
               <button
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={pageSize === null || currentPage === 1}
+                disabled={currentPage === 1}
                 className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -335,7 +312,7 @@ export default function History() {
                 onClick={() =>
                   setCurrentPage((p) => Math.min(pageCount, p + 1))
                 }
-                disabled={pageSize === null || currentPage >= pageCount}
+                disabled={currentPage >= pageCount}
                 className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -343,7 +320,7 @@ export default function History() {
               <button
                 type="button"
                 onClick={() => setCurrentPage(pageCount)}
-                disabled={pageSize === null || currentPage >= pageCount}
+                disabled={currentPage >= pageCount}
                 className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronsRight className="w-4 h-4" />

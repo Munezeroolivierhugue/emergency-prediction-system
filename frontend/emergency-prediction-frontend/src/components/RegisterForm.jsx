@@ -2,9 +2,11 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, User, UserPlus, Loader2, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
+
+import { authService } from "../utils/api";
 
 const registerSchema = z
     .object({
@@ -19,6 +21,7 @@ const registerSchema = z
     });
 
 const RegisterForm = () => {
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -29,12 +32,18 @@ const RegisterForm = () => {
 
     const onSubmit = async (data) => {
         try {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            console.log("Register data:", data);
-            toast.success("Account created successfully!");
+            await authService.register({
+                name: data.name,
+                email: data.email,
+                password: data.password
+            });
+
+            toast.success("Account created successfully! Please log in.");
+            navigate("/login");
         } catch (error) {
-            toast.error("Failed to create account. Try again.");
+            console.error("Registration error:", error);
+            const message = error.response?.data?.detail || "Failed to create account. Try again.";
+            toast.error(message);
         }
     };
 
@@ -51,8 +60,8 @@ const RegisterForm = () => {
                         type="text"
                         placeholder="John Doe"
                         className={`block w-full pl-11 pr-4 py-3 bg-background border rounded-1.5xl transition-all outline-none text-foreground ${errors.name
-                                ? "border-destructive focus:ring-4 focus:ring-destructive/10"
-                                : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
+                            ? "border-destructive focus:ring-4 focus:ring-destructive/10"
+                            : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
                             }`}
                     />
                 </div>
@@ -74,8 +83,8 @@ const RegisterForm = () => {
                         type="email"
                         placeholder="name@example.com"
                         className={`block w-full pl-11 pr-4 py-3 bg-background border rounded-1.5xl transition-all outline-none text-foreground ${errors.email
-                                ? "border-destructive focus:ring-4 focus:ring-destructive/10"
-                                : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
+                            ? "border-destructive focus:ring-4 focus:ring-destructive/10"
+                            : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
                             }`}
                     />
                 </div>
@@ -97,8 +106,8 @@ const RegisterForm = () => {
                         type="password"
                         placeholder="••••••••"
                         className={`block w-full pl-11 pr-4 py-3 bg-background border rounded-1.5xl transition-all outline-none text-foreground ${errors.password
-                                ? "border-destructive focus:ring-4 focus:ring-destructive/10"
-                                : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
+                            ? "border-destructive focus:ring-4 focus:ring-destructive/10"
+                            : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
                             }`}
                     />
                 </div>
@@ -120,8 +129,8 @@ const RegisterForm = () => {
                         type="password"
                         placeholder="••••••••"
                         className={`block w-full pl-11 pr-4 py-3 bg-background border rounded-1.5xl transition-all outline-none text-foreground ${errors.confirmPassword
-                                ? "border-destructive focus:ring-4 focus:ring-destructive/10"
-                                : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
+                            ? "border-destructive focus:ring-4 focus:ring-destructive/10"
+                            : "border-border focus:border-primary focus:ring-4 focus:ring-primary/10"
                             }`}
                     />
                 </div>

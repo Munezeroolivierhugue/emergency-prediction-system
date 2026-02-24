@@ -26,7 +26,8 @@ export default function Sidebar() {
     ];
 
     const handleLogout = () => {
-        // Here you would clear tokens / user state
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
         toast.success("Logged out successfully");
         navigate("/login");
     };

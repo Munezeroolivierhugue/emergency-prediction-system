@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny
 
-from .serializers import PredictionRequestSerializer, PredictionResponseSerializer
+from .serializers import PredictionRequestSerializer, PredictionResponseSerializer, IncidentSerializer
 from .ml_service import MLService
 from incidents.models import Incident
 from .services import get_location_from_coords
