@@ -1,65 +1,162 @@
 import pandas as pd
 import numpy as np
+import os
+import joblib
+
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, KFold
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
-from xgboost import XGBRegressor
-from lightgbm import LGBMRegressor # Added LightGBM
-from sklearn.model_selection import RandomizedSearchCV, KFold
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestClassifier
+from sklearn.utils.class_weight import compute_sample_weight
 from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.utils.class_weight import compute_sample_weight
-import joblib
-import os
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from sklearn.ensemble import RandomForestClassifier
 
 # Set seeds
 np.random.seed(42)
-# ... [lines 19-143 truncated for brevity, assume unchanged until model_pipeline] ...
+
+def calculate_dynamic_severity(row):
+    """
+    Calculates severity based on environmental factors and incident type.
+    """
+    type_ = str(row.get('Incident_Type', row.get('type', ''))).upper()
     
+    # 1. Base Score by broad category
+    base_score = 5 
+    if 'FIRE' in type_: base_score = 6
+    elif 'TRAFFIC' in type_: base_score = 4
+    elif 'EMS' in type_: base_score = 5
+    
+    # 2. Environmental Modifiers
+    score_modifier = 0
+    
+    # Time of Day (Rush Hour: 7-9, 16-18 => High Traffic Risk)
+    hour = row.get('Hour', row.get('hour', 0))
+    if (7 <= hour <= 9) or (16 <= hour <= 18):
+        if 'TRAFFIC' in type_:
+            score_modifier += 2
+        else:
+            score_modifier += 0.5 
+            
+    # Night Time (22-5 => High Risk for EMS/Fire visibility)
+    if (hour >= 22) or (hour <= 5):
+        if 'EMS' in type_ or 'FIRE' in type_:
+            score_modifier += 1
+            
+    # Seasonality (Winter: Dec-Feb => Higher risk)
+    month = row.get('Month', 1)
+    if month in [12, 1, 2]:
+        score_modifier += 1.0
+        
+    # Weekend (Fri-Sun => Higher alcohol-related risk?)
+    day = row.get('DayOfWeek', row.get('day_encoded', row.get('day_num', 0)))
+    if day >= 4: # 4=Fri, 5=Sat, 6=Sun
+        score_modifier += 0.5
+
+    # 3. Random Stochasticity (The "Unknown" factors)
+    noise = np.random.normal(0, 1.5)
+    
+    final_score = base_score + score_modifier + noise
+    return int(max(1, min(10, round(final_score))))
+
+
+class EmergencyDataTransformer(BaseEstimator, TransformerMixin):
+    """
+    Custom transformer to align the backend's raw input schema:
+    ['type', 'hour', 'day', 'lat', 'lng']
+    into the engineered features expected by the model.
+    """
+    def __init__(self, n_clusters=10):
+        self.n_clusters = n_clusters
+        self.kmeans = KMeans(n_clusters=self.n_clusters, random_state=42, n_init=10)
+        self.day_mapping = {'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6}
+        self.mean_lat = 0.0
+        self.mean_lng = 0.0
+
+    def fit(self, X, y=None):
+        X_copy = X.copy()
+        self.mean_lat = X_copy['lat'].mean()
+        self.mean_lng = X_copy['lng'].mean()
+        
+        locations = X_copy[['lat', 'lng']].fillna(value={'lat': self.mean_lat, 'lng': self.mean_lng})
+        self.kmeans.fit(locations)
+        return self
+
+    def transform(self, X):
+        X_out = X.copy()
+        
+        # 1. Fill NAs for coordinates
+        locations = X_out[['lat', 'lng']].fillna(value={'lat': self.mean_lat, 'lng': self.mean_lng})
+        X_out['lat'] = locations['lat']
+        X_out['lng'] = locations['lng']
+        
+        # 2. Region Cluster
+        X_out['Region_Cluster'] = self.kmeans.predict(locations)
+        
+        # 3. Time Encoding (hour)
+        X_out['Hour_Sin'] = np.sin(2 * np.pi * X_out['hour'] / 24)
+        X_out['Hour_Cos'] = np.cos(2 * np.pi * X_out['hour'] / 24)
+        
+        # 4. Day Encoding
+        X_out['day_num'] = X_out['day'].map(self.day_mapping).fillna(0)
+        X_out['DayOfWeek_Sin'] = np.sin(2 * np.pi * X_out['day_num'] / 7)
+        X_out['DayOfWeek_Cos'] = np.cos(2 * np.pi * X_out['day_num'] / 7)
+        
+        # Select final engineered features
+        features = [
+            'type', 
+            'lat', 'lng', 'Region_Cluster',
+            'Hour_Sin', 'Hour_Cos', 
+            'DayOfWeek_Sin', 'DayOfWeek_Cos'
+        ]
+        return X_out[features]
+
+def train_and_save():
+    print("Loading data...")
+    data_path = '../data/911.csv'
+    if not os.path.exists(data_path):
+        data_path = 'data/911.csv'
+    
+    if not os.path.exists(data_path):
+        print(f"Main dataset not found at {data_path}. Checking for sample data...")
+        data_path = 'data/sample_911.csv'
+        if not os.path.exists(data_path):
+            data_path = '../data/sample_911.csv'
+            
+    if not os.path.exists(data_path):
+        raise FileNotFoundError("Could not find 911.csv or sample_911.csv")
+
+    print(f"Using dataset: {data_path}")
+    df = pd.read_csv(data_path, nrows=200000) 
+
+    print("Mapping to Backend Schema & Generating Targets...")
+    # Exact variables backend will send
+    df['type'] = df['title'].apply(lambda x: x.split(':')[0].strip() if pd.notnull(x) else 'Unknown')
+    df['Incident_Type'] = df['type'] # Aliased for calculate_dynamic_severity
+    df['timeStamp'] = pd.to_datetime(df['timeStamp'], errors='coerce')
+    df['hour'] = df['timeStamp'].dt.hour.fillna(0).astype(int)
+    # Get 3-letter day string to match backend 'Mon', 'Tue'
+    df['day'] = df['timeStamp'].dt.day_name().str[:3].fillna('Mon')
+    
+    # Internal variables for dynamic severity calculation only
+    df['Month'] = df['timeStamp'].dt.month.fillna(1).astype(int)
+    df['day_num'] = df['timeStamp'].dt.dayofweek.fillna(0).astype(int)
+    df['DayOfWeek'] = df['day_num']
+    df['Hour'] = df['hour']
+    
+    # Generate labels
+    df['Severity_Score'] = df.apply(calculate_dynamic_severity, axis=1)
+
+    # Class Weights for imbalance
+    sample_weights_all = compute_sample_weight(class_weight='balanced', y=df['Severity_Score'])
+
     # Input Schema exactly matching Backend expected JSON
     input_features = ['type', 'hour', 'day', 'lat', 'lng']
     
-# 2. Cyclical Time Encoding (From dev)
-    # Maps 23:00 close to 00:00 to help the model understand time loops
-    df['Hour_Sin'] = np.sin(2 * np.pi * df['Hour'] / 24)
-    df['Hour_Cos'] = np.cos(2 * np.pi * df['Hour'] / 24)
-    df['Month_Sin'] = np.sin(2 * np.pi * df['Month'] / 12)
-    df['Month_Cos'] = np.cos(2 * np.pi * df['Month'] / 12)
-    df['DayOfWeek_Sin'] = np.sin(2 * np.pi * df['DayOfWeek'] / 7)
-    df['DayOfWeek_Cos'] = np.cos(2 * np.pi * df['DayOfWeek'] / 7)
-
-    # 3. Spatial Clustering (Risk Zones from dev)
-    # We use KMeans to cluster lat/lng into "Risk Regions"
-    df['lat'] = df['lat'].fillna(df['lat'].mean())
-    df['lng'] = df['lng'].fillna(df['lng'].mean())
-    
-    print("Generating Spatial Clusters...")
-    kmeans = KMeans(n_clusters=10, random_state=42, n_init=10)
-    df['Region_Cluster'] = kmeans.fit_predict(df[['lat', 'lng']])
-    
-    # Save KMeans model
-    output_dir_kmeans = '../model' if os.path.exists('../model') else 'model'
-    if not os.path.exists(output_dir_kmeans): os.makedirs(output_dir_kmeans)
-    joblib.dump(kmeans, os.path.join(output_dir_kmeans, 'kmeans.pkl'))
-    
-    # 4. Target Generation
-    print("Generating Severity Scores...")
-    df['Severity_Score'] = df.apply(calculate_dynamic_severity, axis=1)
-
-    # Features for Model
-    # Note: We ensure 'type' is present for your pipeline's OneHotEncoder
-    df['type'] = df['Incident_Type'] 
-    
-    features = [
-        'type', 'lat', 'lng', 'Region_Cluster',
-        'Hour_Sin', 'Hour_Cos', 'DayOfWeek_Sin', 'DayOfWeek_Cos'
-    ]
-    
-    X = df[features]
+    X = df[input_features]
     y = df['Severity_Score']
 
     print("Pipeline Construction...")
@@ -168,7 +265,8 @@ def train_api_model():
         return
 
     df = pd.read_csv(data_path, nrows=50000)
-    df['Incident_Type'] = df['title'].apply(lambda x: x.split(':')[0].strip())
+    df['type'] = df['title'].apply(lambda x: x.split(':')[0].strip() if pd.notnull(x) else 'Unknown')
+    df['Incident_Type'] = df['type'] 
     df['timeStamp'] = pd.to_datetime(df['timeStamp'], errors='coerce')
     df['hour'] = df['timeStamp'].dt.hour
     df['day_encoded'] = df['timeStamp'].dt.dayofweek
@@ -210,4 +308,3 @@ def train_api_model():
 if __name__ == "__main__":
     train_and_save()
     train_api_model()
-
