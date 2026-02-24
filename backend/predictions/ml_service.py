@@ -99,7 +99,7 @@ class MLService:
         uses EmergencyDataTransformer to engineer features.
         """
         model = cls.load_model()
-    
+        # Their previous manual encoding is removed and replaced by the Pipeline wrapper logic
         processed_data = {
             'type': data.get('type', 'Unknown'),
             'hour': data.get('hour', 0),
@@ -132,12 +132,7 @@ class MLService:
         input_df['DayOfWeek_Cos'] = np.cos(2 * np.pi * day_num / 7)
         
         # 3. Spatial computations needed by the preprocessor directly
-        # We need a dummy KMeans to produce the 'Region_Cluster' column
-        # otherwise ColumnTransformer crashes.
         locations = input_df[['lat', 'lng']]
-        dummy_kmeans = KMeans(n_clusters=10, random_state=42, n_init=1).fit(np.zeros((10, 2))) # Very hacky fallback if they didn't wrap it correctly
-        
-        # Actually, let's use the kmeans.pkl file if it exists, otherwise 0
         kmeans_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ml_models', 'kmeans.pkl')
         try:
            kmeans_model = joblib.load(kmeans_path)
@@ -148,8 +143,8 @@ class MLService:
         # The advanced model is a Regressor, returning a float 1-10
         raw_prediction = float(model.predict(input_df)[0])
         severity_score = int(max(1, min(10, round(raw_prediction))))
-        
-        # Map numeric score (1-10) to label
+
+        # Map numeric score to label
         if severity_score >= 8:
             severity = "Critical"
         elif severity_score >= 6:
@@ -158,17 +153,19 @@ class MLService:
             severity = "Medium"
         else:
             severity = "Low"
-    
-        # Pseudo-confidence based on distance from nearest boundary
-        branches = [3.5, 5.5, 7.5]
-        min_distance = min(abs(raw_prediction - b) for b in branches)
-        # Distance ranges roughly 0 to 2; normalize to 0.5 - 1.0 confidence
-        confidence = round(min(1.0, 0.5 + min_distance * 0.1), 2)
-    
+
+        # Pseudo-confidence: based on distance from threshold boundaries
+        # Higher confidence when prediction is far from boundaries (4, 6, 8)
+        boundaries = [4, 6, 8]
+        distances = [abs(severity_score - b) for b in boundaries]
+        min_distance = min(distances)
+        
+        # Normalize to 0-1 range (max distance is ~3 for a 1-10 scale)
+        confidence = min(1.0, 0.5 + (min_distance / 6.0))
+        
         return {
             "severity": severity,
-            "confidence": confidence,
-            "recommended_response": cls.RESPONSE_MAP.get(severity, 'Assess on arrival'),
+            "confidence": round(confidence, 2)
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.
