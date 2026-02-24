@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestClassifier
 from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
@@ -109,6 +109,14 @@ def train_and_save():
     kmeans = KMeans(n_clusters=10, random_state=42, n_init=10)
     df['Region_Cluster'] = kmeans.fit_predict(df[['lat', 'lng']])
     
+    # Save KMeans model alongside the XGBoost model
+    output_dir_kmeans = '../model'
+    if not os.path.exists(output_dir_kmeans):
+        output_dir_kmeans = 'model'
+    kmeans_path = os.path.join(output_dir_kmeans, 'kmeans.pkl')
+    joblib.dump(kmeans, kmeans_path)
+    print(f"KMeans model saved to {kmeans_path}")
+    
     # 4. Target Generation (New Logic)
     print("Generating Severity Scores...")
     df['Severity_Score'] = df.apply(calculate_dynamic_severity, axis=1)
@@ -182,6 +190,61 @@ def train_and_save():
     joblib.dump(model_v3, output_path)
     print(f"Model saved to {output_path}")
 
+def train_api_model():
+    print("Training simpler model for API...")
+    data_path = '../data/911.csv'
+    if not os.path.exists(data_path):
+        data_path = 'data/911.csv'
+    if not os.path.exists(data_path):
+        data_path = 'data/sample_911.csv'
+    if not os.path.exists(data_path):
+        data_path = '../data/sample_911.csv'
+        
+    if not os.path.exists(data_path):
+        print(f"Skipping API model training. Dataset not found: {data_path}")
+        return
+
+    df = pd.read_csv(data_path, nrows=50000)
+    df['Incident_Type'] = df['title'].apply(lambda x: x.split(':')[0].strip())
+    df['timeStamp'] = pd.to_datetime(df['timeStamp'], errors='coerce')
+    df['hour'] = df['timeStamp'].dt.hour
+    df['day_encoded'] = df['timeStamp'].dt.dayofweek
+    df['lat'] = df['lat'].fillna(df['lat'].mean())
+    df['lng'] = df['lng'].fillna(df['lng'].mean())
+    df['type_Fire'] = (df['Incident_Type'] == 'Fire').astype(int)
+    df['type_EMS'] = (df['Incident_Type'] == 'EMS').astype(int)
+    df['type_Traffic'] = (df['Incident_Type'] == 'Traffic').astype(int)
+    
+    df['Hour'] = df['hour']
+    
+    df['Month'] = df['timeStamp'].dt.month
+    df['DayOfWeek'] = df['day_encoded']
+    
+    severity_scores = df.apply(calculate_dynamic_severity, axis=1)
+    
+    def map_severity(score):
+        if score <= 3: return 0
+        elif score <= 6: return 1
+        elif score <= 8: return 2
+        else: return 3
+        
+    y = severity_scores.apply(map_severity)
+    X = df[['hour', 'day_encoded', 'lat', 'lng', 'type_Fire', 'type_EMS', 'type_Traffic']]
+    
+    model = RandomForestClassifier(n_estimators=50, random_state=42)
+    model.fit(X, y)
+    
+    out_dir = '../backend/ml_models'
+    if not os.path.exists(out_dir):
+        out_dir = 'backend/ml_models'
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+            
+    out_path = os.path.join(out_dir, 'severity_model.pkl')
+    joblib.dump(model, out_path)
+    print(f"API Model saved to {out_path}")
+
 if __name__ == "__main__":
     train_and_save()
+    train_api_model()
 
