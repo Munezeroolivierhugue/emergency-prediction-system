@@ -1,0 +1,8 @@
+ERROR 2026-02-16 14:53:19,385 log Internal Server Error: /api/predictions/predict/
+WARNING 2026-02-16 14:53:20,613 log Bad Request: /api/predictions/predict/
+ERROR 2026-02-16 14:53:21,589 log Service Unavailable: /api/predictions/predict/
+WARNING 2026-02-16 14:53:24,070 log Unauthorized: /api/predictions/predict/
+ERROR 2026-02-16 14:55:42,692 log Internal Server Error: /api/predictions/predict/
+WARNING 2026-02-16 14:55:43,757 log Bad Request: /api/predictions/predict/
+ERROR 2026-02-16 14:55:44,870 log Service Unavailable: /api/predictions/predict/
+WARNING 2026-02-16 14:55:48,203 log Unauthorized: /api/predictions/predict/

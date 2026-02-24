@@ -3,18 +3,78 @@ import joblib
 import numpy as np
 import pandas as pd
 from decouple import config
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.cluster import KMeans
+
+class EmergencyDataTransformer(BaseEstimator, TransformerMixin):
+    """
+    Custom transformer to align the backend's raw input schema:
+    ['type', 'hour', 'day', 'lat', 'lng']
+    into the engineered features expected by the model.
+    """
+    def __init__(self, n_clusters=10):
+        self.n_clusters = n_clusters
+        self.kmeans = KMeans(n_clusters=self.n_clusters, random_state=42, n_init=10)
+        self.day_mapping = {'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6}
+        self.mean_lat = 0.0
+        self.mean_lng = 0.0
+
+    def fit(self, X, y=None):
+        X_copy = X.copy()
+        self.mean_lat = X_copy['lat'].mean()
+        self.mean_lng = X_copy['lng'].mean()
+        
+        locations = X_copy[['lat', 'lng']].fillna(value={'lat': self.mean_lat, 'lng': self.mean_lng})
+        self.kmeans.fit(locations)
+        return self
+
+    def transform(self, X):
+        X_out = X.copy()
+        
+        # 1. Fill NAs for coordinates
+        locations = X_out[['lat', 'lng']].fillna(value={'lat': self.mean_lat, 'lng': self.mean_lng})
+        X_out['lat'] = locations['lat']
+        X_out['lng'] = locations['lng']
+        
+        # 2. Region Cluster
+        X_out['Region_Cluster'] = self.kmeans.predict(locations)
+        
+        # 3. Time Encoding (hour)
+        X_out['Hour_Sin'] = np.sin(2 * np.pi * X_out['hour'] / 24)
+        X_out['Hour_Cos'] = np.cos(2 * np.pi * X_out['hour'] / 24)
+        
+        # 4. Day Encoding
+        X_out['day_num'] = X_out['day'].map(self.day_mapping).fillna(0)
+        X_out['DayOfWeek_Sin'] = np.sin(2 * np.pi * X_out['day_num'] / 7)
+        X_out['DayOfWeek_Cos'] = np.cos(2 * np.pi * X_out['day_num'] / 7)
+        
+        # 5. Month Encoding (Fix missing columns expectation)
+        X_out['Month'] = X_out.get('month', 1) # Default to 1 if missing
+        X_out['Month_Sin'] = np.sin(2 * np.pi * X_out['Month'] / 12)
+        X_out['Month_Cos'] = np.cos(2 * np.pi * X_out['Month'] / 12)
+        
+        # Select final engineered features - MUST match fit time expectation exactly
+        X_out['Incident_Type'] = X_out['type']
+        
+        features = [
+            'type', 'Incident_Type',
+            'lat', 'lng', 'Region_Cluster',
+            'Hour_Sin', 'Hour_Cos', 
+            'Month_Sin', 'Month_Cos',
+            'DayOfWeek_Sin', 'DayOfWeek_Cos'
+        ]
+        return X_out[features]
 
 class MLService:
     _model = None
-    _model_path = config('ML_MODEL_PATH', default='ml_models/severity_model.pkl')
+    _model_path = config('ML_MODEL_PATH', default='ml_models/best_advanced_model.pkl')
     
-    # Define a mapping for days, assuming the model expects numerical input for day
-    DAY_MAPPING = {
-        'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6
+    RESPONSE_MAP = {
+        'Critical': 'Dispatch 3+ Units — Immediate Response',
+        'High':     'Dispatch 2 Units — Priority Response',
+        'Medium':   'Dispatch 1 Unit — Standard Response',
+        'Low':      'Monitor — No Dispatch Needed',
     }
-    
-    # Define severity labels based on problem description
-    SEVERITY_LABELS = ['Low', 'Medium', 'High', 'Critical'] # Assuming this order for model output
 
     @classmethod
     def load_model(cls):
@@ -35,73 +95,78 @@ class MLService:
     @classmethod
     def predict_severity(cls, data: dict) -> dict:
         """
-        Takes incident data, prepares it for the ML model, and returns
-        the predicted severity and confidence score.
-        
-        Args:
-            data (dict): A dictionary containing incident features:
-                         'type', 'hour', 'day', 'lat', 'lng'.
-        
-        Returns:
-            dict: A dictionary with 'severity' and 'confidence'.
+        Passes raw data to the loaded pipeline model, which internally 
+        uses EmergencyDataTransformer to engineer features.
         """
-        model = cls.load_model() # Ensure model is loaded
-
-        # Prepare data for the model
-        # Assuming the model expects a DataFrame with specific columns.
-        # This part is highly dependent on the actual model's training features.
-        
-        # Example: Create a DataFrame.
-        # For 'type', if it's a categorical feature, it likely needs one-hot encoding.
-        # For simplicity, we'll just include it as is or use a placeholder for now.
-        # The actual model integration would require understanding its feature engineering.
-
-        # Let's assume the model was trained on features like:
-        # ['hour', 'day_encoded', 'lat', 'lng', 'type_Fire', 'type_EMS', ...]
-        
-        # For now, we'll create a basic DataFrame that might need further processing
-        # depending on the actual model.
-        
+        model = cls.load_model()
+        # Their previous manual encoding is removed and replaced by the Pipeline wrapper logic
         processed_data = {
-            'hour': data['hour'],
-            'day_encoded': cls.DAY_MAPPING.get(data['day'], -1), # -1 for unknown day
-            'lat': data['lat'],
-            'lng': data['lng'],
-            # Placeholder for 'type' encoding. 
-            # In a real scenario, you'd need the exact one-hot encoding columns
-            # used during model training.
-            'type_Fire': 1 if data['type'] == 'Fire' else 0,
-            'type_EMS': 1 if data['type'] == 'EMS' else 0,
-            'type_Traffic': 1 if data['type'] == 'Traffic' else 0,
-            # Add other types as needed by the model
+            'type': data.get('type', 'Unknown'),
+            'hour': data.get('hour', 0),
+            'day':  data.get('day', 'Mon'), # String mapping required
+            'lat':  data.get('lat', 0.0),
+            'lng':  data.get('lng', 0.0),
         }
+    
+        input_df = pd.DataFrame([processed_data])
         
-        # Convert to DataFrame, ensuring column order matches model's training data
-        # This is a critical step and needs to align with the actual model.
-        # For a robust solution, you might store feature names during training
-        # and use them here.
-        feature_names = [
-            'hour', 'day_encoded', 'lat', 'lng', 
-            'type_Fire', 'type_EMS', 'type_Traffic'
-        ] # Example feature names
+        # --- SHAP Model Pipeline Fix ---
+        # The new advanced model's ColumnTransformer was trained on a DataFrame 
+        # that already contained these mapped values. We must provide them here
+        # or the pipeline will fail with "Feature names unseen at fit time"
         
-        input_df = pd.DataFrame([processed_data], columns=feature_names)
+        # 1. Aliases needed by calculate_dynamic_severity during training
+        input_df['Incident_Type'] = input_df['type']
+        
+        # 2. Time computations needed by the preprocessor directly
+        input_df['Month'] = data.get('month', 1)
+        input_df['Month_Sin'] = np.sin(2 * np.pi * input_df['Month'] / 12)
+        input_df['Month_Cos'] = np.cos(2 * np.pi * input_df['Month'] / 12)
+        
+        input_df['Hour_Sin'] = np.sin(2 * np.pi * input_df['hour'] / 24)
+        input_df['Hour_Cos'] = np.cos(2 * np.pi * input_df['hour'] / 24)
+        
+        day_mapping = {'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6}
+        day_num = day_mapping.get(input_df['day'][0], 0)
+        input_df['DayOfWeek_Sin'] = np.sin(2 * np.pi * day_num / 7)
+        input_df['DayOfWeek_Cos'] = np.cos(2 * np.pi * day_num / 7)
+        
+        # 3. Spatial computations needed by the preprocessor directly
+        locations = input_df[['lat', 'lng']]
+        kmeans_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ml_models', 'kmeans.pkl')
+        try:
+           kmeans_model = joblib.load(kmeans_path)
+           input_df['Region_Cluster'] = kmeans_model.predict(locations)
+        except:
+           input_df['Region_Cluster'] = 0
 
-        # Make prediction
-        prediction = model.predict(input_df)[0]
-        # Get confidence (probability estimates)
-        confidence_scores = model.predict_proba(input_df)[0]
-        
-        # The 'prediction' variable holds the index of the predicted class
-        # Map the prediction index to a human-readable severity label
-        severity = cls.SEVERITY_LABELS[prediction]
-        
-        # Get the confidence for the predicted class
-        confidence = confidence_scores[prediction]
+        # The advanced model is a Regressor, returning a float 1-10
+        raw_prediction = float(model.predict(input_df)[0])
+        severity_score = int(max(1, min(10, round(raw_prediction))))
 
+        # Map numeric score to label
+        if severity_score >= 8:
+            severity = "Critical"
+        elif severity_score >= 6:
+            severity = "High"
+        elif severity_score >= 4:
+            severity = "Medium"
+        else:
+            severity = "Low"
+
+        # Pseudo-confidence: based on distance from threshold boundaries
+        # Higher confidence when prediction is far from boundaries (4, 6, 8)
+        boundaries = [4, 6, 8]
+        distances = [abs(severity_score - b) for b in boundaries]
+        min_distance = min(distances)
+        
+        # Normalize to 0-1 range (max distance is ~3 for a 1-10 scale)
+        confidence = min(1.0, 0.5 + (min_distance / 6.0))
+        
         return {
             "severity": severity,
-            "confidence": round(float(confidence), 2)
+            "confidence": round(confidence, 2),
+            "recommended_response": cls.RESPONSE_MAP.get(severity, "Unknown Response")
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.
