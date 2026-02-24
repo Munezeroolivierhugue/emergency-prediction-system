@@ -1,0 +1,48 @@
+=================================================================
+SENTINEL  |  Step 3: Baseline Hotspot Prediction Model
+=================================================================
+
+[DATA]   3,604 township-month observations
+         68 townships
+         53 monthly periods  (2016-03 → 2020-07)
+         Hotspot rate: 25.1%  (906 / 3,604)
+
+[FEATURES]  30 features, all lagged — no current-period leakage
+
+[SPLIT]  Train: 3,400  (2016-03 → 2020-04)  hotspot rate=25.4%
+         Test:  204   (2020-05 → 2020-07)  hotspot rate=20.6%
+         (Note: small dataset — 13 months. Full dataset will give
+          stable train/test split with multiple years of holdout.)
+
+[NAIVE]  Persistence baseline AUC: 0.8774
+         (Predict: hotspot this month = hotspot last month)
+
+[TRAINING]
+  Logistic Regression     AUC=0.9874  F1=0.8780  Prec=0.9000  Rec=0.8571
+  Decision Tree           AUC=0.8782  F1=0.7901  Prec=0.8205  Rec=0.7619
+  Random Forest           AUC=0.9853  F1=0.8718  Prec=0.9444  Rec=0.8095
+  Gradient Boosting       AUC=0.9846  F1=0.8750  Prec=0.9211  Rec=0.8333
+
+  🏆  Best: Logistic Regression  (AUC=0.9874  vs naive=0.8774  Δ=+0.1100)
+
+[CHARTS]
+  01_roc_pr_curves.png
+  02_model_comparison.png
+  03_confusion_matrices.png
+  04_feature_importance.png
+  05_threshold_analysis.png
+  06_severity_distribution.png
+  07_township_volumes.png
+  08_temporal_patterns.png
+
+=================================================================
+HOTSPOT PREDICTION — FINAL RESULTS
+=================================================================
+  Naive persistence baseline AUC: 0.8774
+  Model                      AUC      F1    Prec     Rec     Acc
+  ----------------------------------------------------------
+  Logistic Regression ★   0.9874  0.8780  0.9000  0.8571  0.9510  +0.1100 vs naive
+  Random Forest           0.9853  0.8718  0.9444  0.8095  0.9510
+  Gradient Boosting       0.9846  0.8750  0.9211  0.8333  0.9510
+  Decision Tree           0.8782  0.7901  0.8205  0.7619  0.9167
+=================================================================
