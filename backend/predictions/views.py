@@ -35,6 +35,11 @@ class PredictSeverityView(APIView):
                 response_serializer = PredictionResponseSerializer(data=prediction_data)
                 response_serializer.is_valid(raise_exception=True)
 
+                # Get coordinates and geocode location
+                lat = serializer.validated_data.get('lat')
+                lng = serializer.validated_data.get('lng')
+                location = get_location_from_coords(lat, lng)
+
                 # Save as new Incident in the main database
                 incident = Incident.objects.create(
                     type=serializer.validated_data['type'],
