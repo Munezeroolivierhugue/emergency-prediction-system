@@ -65,7 +65,7 @@ for col in df.columns:
     pct = f'  ({n/len(df):.1%})' if n > 0 else ''
     log(f'          {col:<12} {n:>6,} nulls{pct}')
 
-# ── Fix 1: Split title into Type and Subtype ──────────────────────────────────
+# ──  Split title into Type and Subtype ──────────────────────────────────
 # title is always "Type: Subtype" with exactly 3 possible Types:
 #   EMS, Fire, Traffic
 # Split on the first colon only (n=1) in case subtype ever contains a colon.
@@ -74,7 +74,7 @@ log(f'\n[1]  Splitting title → Type + Subtype')
 split       = df['title'].str.split(':', n=1, expand=True)
 df['Type']  = split[0].str.strip()
 
-# Fix 6 is applied here: Traffic subtypes carry a trailing " -" artifact
+#  Traffic subtypes carry a trailing " -" artifact
 # e.g. "Traffic: VEHICLE ACCIDENT -"  →  Subtype should be "VEHICLE ACCIDENT"
 # Strip trailing whitespace and dash so all subtypes are clean labels.
 df['Subtype'] = split[1].str.strip().str.rstrip(' -').str.strip()
@@ -87,7 +87,7 @@ log(f'     Top 10 subtypes by volume:')
 for sub, cnt in df['Subtype'].value_counts().head(10).items():
     log(f'       {sub:<45} {cnt:,}')
 
-# ── Fix 2: Parse timeStamp ────────────────────────────────────────────────────
+# ──  Parse timeStamp ────────────────────────────────────────────────────
 # Raw format: "2015-12-10 17:10:52" — clean, no timezone, no fractional seconds.
 # Extract temporal features for modelling and EDA.
 log(f'\n[2]  Parsing timeStamp → datetime + temporal features')
@@ -106,7 +106,7 @@ log(f'     Years covered: {sorted(df["year"].unique())}')
 log(f'     Night calls (22:00–06:00): {df["is_night"].sum():,}  ({df["is_night"].mean():.1%})')
 log(f'     Weekend calls:             {df["is_weekend"].sum():,}  ({df["is_weekend"].mean():.1%})')
 
-# ── Fix 3a: Handle null zip (18,346 nulls — 12.6%) ────────────────────────────
+# ── Handle null zip (18,346 nulls — 12.6%) ────────────────────────────
 # zip is stored as float (e.g. 19525.0) because of nulls. Cast to string after
 # imputation. Strategy: assign the most common zip for the same township.
 # Any rows whose township is also null get the global modal zip.
@@ -139,7 +139,7 @@ df['zip'] = df['zip'].astype(int).astype(str).str.zfill(5)
 log(f'     Cast zip float → 5-digit string (e.g. 19401)')
 log(f'     Remaining nulls: {df["zip"].isnull().sum()}')
 
-# ── Fix 3b: Handle null twp (47 nulls — 0.03%) ────────────────────────────────
+# ── Handle null twp (47 nulls — 0.03%) ────────────────────────────────
 # Only 47 rows — small enough that the exact strategy matters less than being
 # explicit about it. Use modal township for the same zip code.
 n_null_twp = df['twp'].isnull().sum()
@@ -162,7 +162,7 @@ if remaining_twp > 0:
     df['twp'] = df['twp'].fillna(df['twp'].mode()[0])
 log(f'     Remaining nulls: {df["twp"].isnull().sum()}')
 
-# ── Fix 4: Create Severity target ────────────────────────────────────────────
+# ──  Create Severity target ────────────────────────────────────────────
 # Severity is mapped from Subtype using a lookup grounded in the actual
 # subtypes present in this dataset (76 unique subtypes after cleaning).
 # Classification follows emergency triage logic:
@@ -291,12 +291,12 @@ for level in SEVERITY_ORDER:
     n = (df['Severity'] == level).sum()
     log(f'       {level:<10}  {n:,}  ({n/len(df):.1%})')
 
-# ── Fix 5: Drop e column ──────────────────────────────────────────────────────
+# ──  Drop e column ──────────────────────────────────────────────────────
 # Always 1 — no analytical value whatsoever.
 df.drop(columns=['e'], inplace=True)
 log(f'\n[5]  Dropped dummy column "e" (always 1)')
 
-# ── Fix 6: Drop original title ────────────────────────────────────────────────
+# ── Drop original title ────────────────────────────────────────────────
 # Fully replaced by Type + Subtype. Keeping it would be redundant.
 df.drop(columns=['title'], inplace=True)
 log(f'[6]  Dropped "title" (replaced by Type + Subtype)')
