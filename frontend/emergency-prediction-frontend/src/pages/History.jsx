@@ -249,7 +249,7 @@ export default function History() {
                   }`}
                 >
                   <td className="px-5 py-3.5">
-                    <span className="text-blue-500 dark:text-blue-400 font-medium cursor-pointer hover:underline">
+                    <span className="text-red-500 dark:text-red-400 font-medium cursor-pointer hover:underline">
                       {row.id}
                     </span>
                   </td>

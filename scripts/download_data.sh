@@ -1,0 +1,23 @@
+#!/bin/bash
+# NOTE: This script requires a Unix-like environment (Linux, macOS, WSL, or Git Bash on Windows).
+# Windows users: use WSL, Git Bash, or run the equivalent scripts/download_data.bat instead.
+
+# Emergency Prediction System - Data Download Script
+
+echo "Downloading Emergency Dataset..."
+echo "NOTE: This script assumes you have the Kaggle CLI installed and configured."
+echo "If not, please download the datasets manually from the links below."
+
+DATA_DIR="data"
+mkdir -p $DATA_DIR
+
+# 911 Calls (the only dataset used by train_model.py)
+# Source: https://www.kaggle.com/datasets/mchirico/montcoalert
+if [ ! -f "$DATA_DIR/911.csv" ]; then
+    echo "Downloading 911 Calls dataset..."
+    kaggle datasets download -d mchirico/montcoalert -p $DATA_DIR --unzip
+else
+    echo "911.csv already exists."
+fi
+
+echo "Data download complete."
