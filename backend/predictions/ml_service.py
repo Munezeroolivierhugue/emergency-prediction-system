@@ -8,8 +8,14 @@ class MLService:
     _model = None
     _model_path = config('ML_MODEL_PATH', default='ml_models/severity_model.pkl')
     
-    _kmeans = None
-    _kmeans_path = config('KMEANS_MODEL_PATH', default='ml_models/kmeans.pkl')
+    SEVERITY_LABELS = {0: 'Low', 1: 'Medium', 2: 'High', 3: 'Critical'}
+    
+    RESPONSE_MAP = {
+        'Critical': 'Dispatch 3+ Units — Immediate Response',
+        'High':     'Dispatch 2 Units — Priority Response',
+        'Medium':   'Dispatch 1 Unit — Standard Response',
+        'Low':      'Monitor — No Dispatch Needed',
+    }
 
     @classmethod
     def load_model(cls):
@@ -28,88 +34,42 @@ class MLService:
         return cls._model
 
     @classmethod
-    def load_kmeans(cls):
-        if cls._kmeans is None:
-            if not os.path.exists(cls._kmeans_path):
-                raise FileNotFoundError(f"KMeans model not found at: {cls._kmeans_path}")
-            cls._kmeans = joblib.load(cls._kmeans_path)
-        return cls._kmeans
-
-    @classmethod
     def predict_severity(cls, data: dict) -> dict:
         """
-        Prepares features to match the trained XGBoost Pipeline and returns severity + confidence.
-        Input data keys: 'type' (str), 'hour' (int 0-23), 'month' (int 1-12),
-                         'day_of_week' (int 0-6), 'lat' (float), 'lng' (float)
+        Build features matching the RandomForestClassifier trained in
+        notebook/train_model.py → train_api_model().
+        Expected feature order: hour, day_encoded, lat, lng, type_Fire, type_EMS, type_Traffic
         """
         model = cls.load_model()
-
-        hour = data['hour']
-        month = data.get('month', 1)         # default to January if not provided
-        day_of_week = data.get('day_of_week', 0)  # default to Monday if not provided
-        lat = data['lat']
-        lng = data['lng']
-
-        # Cyclical time encoding (must match train_model.py)
-        hour_sin = np.sin(2 * np.pi * hour / 24)
-        hour_cos = np.cos(2 * np.pi * hour / 24)
-        month_sin = np.sin(2 * np.pi * month / 12)
-        month_cos = np.cos(2 * np.pi * month / 12)
-        dow_sin = np.sin(2 * np.pi * day_of_week / 7)
-        dow_cos = np.cos(2 * np.pi * day_of_week / 7)
-
-        # Spatial cluster — load the KMeans object saved alongside the model
-        kmeans = cls.load_kmeans()
-        region_cluster = int(kmeans.predict([[lat, lng]])[0])
-
+    
+        incident_type = data['type']  # "EMS", "Fire", or "Traffic"
+    
         processed_data = {
-            'Incident_Type': data['type'],    # "EMS", "Fire", or "Traffic"
-            'lat': lat,
-            'lng': lng,
-            'Region_Cluster': region_cluster,
-            'Hour_Sin': hour_sin,
-            'Hour_Cos': hour_cos,
-            'Month_Sin': month_sin,
-            'Month_Cos': month_cos,
-            'DayOfWeek_Sin': dow_sin,
-            'DayOfWeek_Cos': dow_cos,
+            'hour':         data['hour'],
+            'day_encoded':  data.get('day_of_week', 0),
+            'lat':          data['lat'],
+            'lng':          data['lng'],
+            'type_Fire':    1 if incident_type == 'Fire' else 0,
+            'type_EMS':     1 if incident_type == 'EMS' else 0,
+            'type_Traffic': 1 if incident_type == 'Traffic' else 0,
         }
-
+    
         input_df = pd.DataFrame([processed_data])
-
-        prediction = model.predict(input_df)[0]
-        severity_score = round(float(prediction))
-        severity_score = max(1, min(10, severity_score))
-
-        # Map numeric score to label
-        if severity_score >= 8:
-            severity = "Critical"
-        elif severity_score >= 6:
-            severity = "High"
-        elif severity_score >= 4:
-            severity = "Medium"
-        else:
-            severity = "Low"
-
-        # Confidence: pseudo-confidence based on distance from nearest boundary
-        raw_pred = float(prediction)
-        branches = [3.5, 5.5, 7.5]
-        min_distance = min(abs(raw_pred - b) for b in branches)
-        # Distance ranges roughly 0 to 2; normalize to 0.5 - 1.0 confidence
-        confidence = round(min(1.0, 0.5 + min_distance * 0.1), 2)
-
-        # Recommendation Mapping
-        RESPONSE_MAP = {
-            'Critical': 'Dispatch 3+ Units — Immediate',
-            'High': 'Dispatch 2 Units — Priority',
-            'Medium': 'Dispatch 1 Unit — Standard',
-            'Low': 'Monitor — No dispatch needed'
-        }
-
+    
+        prediction = int(model.predict(input_df)[0])
+        severity = cls.SEVERITY_LABELS.get(prediction, 'Medium')
+    
+        # Get confidence from predict_proba (RandomForest supports this)
+        try:
+            proba = model.predict_proba(input_df)[0]
+            confidence = round(float(max(proba)), 2)
+        except AttributeError:
+            confidence = None
+    
         return {
             "severity": severity,
             "confidence": confidence,
-            "recommended_response": RESPONSE_MAP[severity]
+            "recommended_response": cls.RESPONSE_MAP.get(severity, 'Assess on arrival'),
         }
 
 # Pre-load model when the service is imported, to avoid re-loading on each request.

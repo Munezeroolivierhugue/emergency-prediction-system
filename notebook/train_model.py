@@ -215,6 +215,8 @@ def train_api_model():
     df['type_EMS'] = (df['Incident_Type'] == 'EMS').astype(int)
     df['type_Traffic'] = (df['Incident_Type'] == 'Traffic').astype(int)
     
+    df['Hour'] = df['hour']
+    
     df['Month'] = df['timeStamp'].dt.month
     df['DayOfWeek'] = df['day_encoded']
     
