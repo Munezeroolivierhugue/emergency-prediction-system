@@ -71,7 +71,22 @@ const SeverityBadge = ({ severity }) => {
     );
 };
 
-export default function RecentIncidents() {
+export default function RecentIncidents({ incidents: propIncidents, loading }) {
+    const displayIncidents = propIncidents && propIncidents.length > 0 ? propIncidents : incidents;
+
+    if (loading) {
+        return (
+            <div className="bg-card p-6 rounded-2xl shadow-sm border border-border mt-8 animate-pulse">
+                <div className="h-6 w-48 bg-muted rounded mb-6"></div>
+                <div className="space-y-4">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="h-12 bg-muted rounded"></div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -96,28 +111,31 @@ export default function RecentIncidents() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                        {incidents.map((incident) => (
-                            <tr key={incident.id} className="group hover:bg-muted/30 transition-colors">
-                                <td className="py-4 pl-2 text-sm font-medium text-primary cursor-pointer hover:underline hover:text-red-700 transition-colors">
-                                    {incident.id}
-                                </td>
-                                <td className="py-4 text-sm text-foreground font-medium">
-                                    {incident.type}
-                                </td>
-                                <td className="py-4 text-sm text-muted-foreground">
-                                    {incident.location}
-                                </td>
-                                <td className="py-4">
-                                    <SeverityBadge severity={incident.severity} />
-                                </td>
-                                <td className="py-4 text-sm text-foreground font-semibold">
-                                    {incident.confidence}
-                                </td>
-                                <td className="py-4 text-sm text-muted-foreground">
-                                    {incident.status}
-                                </td>
-                            </tr>
-                        ))}
+                        {displayIncidents.map((incident) => {
+                            const displayId = typeof incident.id === 'number' ? `INC-${incident.id}` : incident.id;
+                            return (
+                                <tr key={incident.id} className="group hover:bg-muted/30 transition-colors">
+                                    <td className="py-4 pl-2 text-sm font-medium text-primary cursor-pointer hover:underline hover:text-red-700 transition-colors">
+                                        {displayId}
+                                    </td>
+                                    <td className="py-4 text-sm text-foreground font-medium">
+                                        {incident.type}
+                                    </td>
+                                    <td className="py-4 text-sm text-muted-foreground">
+                                        {incident.location || incident.twp || "Unknown"}
+                                    </td>
+                                    <td className="py-4">
+                                        <SeverityBadge severity={incident.severity || "Low"} />
+                                    </td>
+                                    <td className="py-4 text-sm text-foreground font-semibold">
+                                        {incident.confidence || "N/A"}
+                                    </td>
+                                    <td className="py-4 text-sm text-muted-foreground">
+                                        {incident.status || "Resolved"}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

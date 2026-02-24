@@ -1,14 +1,16 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { motion } from 'framer-motion';
 
-const data = [
+const defaultData = [
     { name: 'Fire', value: 35, color: '#ef4444' },
-    { name: 'Medical', value: 45, color: '#dc2626' },
+    { name: 'EMS', value: 45, color: '#dc2626' },
     { name: 'Traffic', value: 15, color: '#f97316' },
-    { name: 'Rescue', value: 20, color: '#22c55e' },
 ];
 
-export default function IncidentChart() {
+export default function IncidentChart({ data = defaultData, total }) {
+    const chartData = data && data.length > 0 ? data : defaultData;
+    const totalValue = total || chartData.reduce((acc, curr) => acc + curr.value, 0);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -23,13 +25,13 @@ export default function IncidentChart() {
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
-                            data={data}
+                            data={chartData}
                             innerRadius={80}
                             outerRadius={100}
                             paddingAngle={5}
                             dataKey="value"
                         >
-                            {data.map((entry, index) => (
+                            {chartData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
                             ))}
                         </Pie>
@@ -55,7 +57,7 @@ export default function IncidentChart() {
                 {/* Center Text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-8">
                     <span className="text-3xl font-bold text-foreground">
-                        1,245
+                        {totalValue.toLocaleString()}
                     </span>
                     <span className="text-xs text-muted-foreground uppercase tracking-wide">
                         Total
