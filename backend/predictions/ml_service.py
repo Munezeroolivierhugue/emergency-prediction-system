@@ -67,7 +67,7 @@ class EmergencyDataTransformer(BaseEstimator, TransformerMixin):
 
 class MLService:
     _model = None
-    _model_path = config('ML_MODEL_PATH', default='ml_models/severity_model.pkl')
+    _model_path = config('ML_MODEL_PATH', default='ml_models/best_advanced_model.pkl')
     
     _kmeans = None
     _kmeans_path = config('KMEANS_MODEL_PATH', default='ml_models/kmeans.pkl')
