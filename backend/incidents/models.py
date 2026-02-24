@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Incident(models.Model):
@@ -19,7 +20,10 @@ class Incident(models.Model):
     severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    timestamp = models.DateTimeField()
+    location = models.CharField(max_length=255, blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    confidence = models.FloatField(null=True, blank=True)
+    status = models.CharField(max_length=20, default='Active')
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
