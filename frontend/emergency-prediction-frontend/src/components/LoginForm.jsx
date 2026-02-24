@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
+import { authService } from "../utils/api";
+
 const loginSchema = z.object({
     email: z.string().email("Please enter a valid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -23,13 +25,23 @@ const LoginForm = () => {
 
     const onSubmit = async (data) => {
         try {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            console.log("Login data:", data);
+            // Standard SimpleJWT expects 'username' if not customized to 'email'
+            // Assuming backend uses email as username based on common patterns
+            const response = await authService.login({
+                username: data.email,
+                password: data.password
+            });
+
+            const { access, refresh } = response.data;
+            localStorage.setItem("access_token", access);
+            localStorage.setItem("refresh_token", refresh);
+
             toast.success("Welcome back! Login successful.");
             navigate("/");
         } catch (error) {
-            toast.error("Invalid credentials. Please try again.");
+            console.error("Login error:", error);
+            const message = error.response?.data?.detail || "Invalid credentials. Please try again.";
+            toast.error(message);
         }
     };
 

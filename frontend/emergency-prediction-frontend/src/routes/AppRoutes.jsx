@@ -3,7 +3,6 @@ import Dashboard from "../pages/Dashboard";
 import Newincident from "../components/Newincident";
 import History from "../pages/History";
 import Settings from "../pages/Settings";
-// import Settings from "../components/Settings";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Zap, MapPin, Clock, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
-
 const NewIncident = () => {
     const [formData, setFormData] = useState({
         incidentType: "",

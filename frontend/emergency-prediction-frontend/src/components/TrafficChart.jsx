@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 
-const data = [
+const defaultData = [
     { time: "00:00", calls: 45 },
     { time: "01:00", calls: 12 },
     { time: "02:00", calls: 48 },
@@ -36,7 +36,8 @@ const data = [
     { time: "23:00", calls: 35 },
 ];
 
-export default function TrafficChart() {
+export default function TrafficChart({ data = defaultData }) {
+    const chartData = data && data.length > 0 ? data : defaultData;
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -50,7 +51,7 @@ export default function TrafficChart() {
             <div className="h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
-                        data={data}
+                        data={chartData}
                         margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                     >
                         <defs>

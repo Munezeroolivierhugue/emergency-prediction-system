@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 
-const data = [
+const defaultData = [
     { day: 'Tue', low: 12, medium: 18, high: 3, critical: 5 },
     { day: 'Wed', low: 16, medium: 16, high: 5, critical: 1 },
     { day: 'Thu', low: 11, medium: 10, high: 6, critical: 3 },
@@ -11,7 +11,8 @@ const data = [
     { day: 'Mon', low: 9, medium: 9, high: 12, critical: 1 },
 ];
 
-export default function SeverityChart() {
+export default function SeverityChart({ data = defaultData }) {
+    const chartData = data && data.length > 0 ? data : defaultData;
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -25,7 +26,7 @@ export default function SeverityChart() {
             <div className="h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                        data={data}
+                        data={chartData}
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                         <CartesianGrid
