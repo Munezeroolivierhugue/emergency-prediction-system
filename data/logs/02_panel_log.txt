@@ -1,0 +1,37 @@
+=================================================================
+SENTINEL  |  Step 2: Hotspot Panel Construction
+=================================================================
+
+[LOAD]   663,522 incident records
+         68 unique townships
+         56 monthly periods  (2015-12 → 2020-07)
+
+[PANEL]  Building 68 × 56 = 3,808 township-month grid...
+         5 zero-call township-months (0.1%) — retained as negatives
+         Mean calls/township-month: 174.2
+         Max calls/township-month:  1446
+
+[TARGET] Hotspot = top 25% of non-zero township-months
+         Threshold: ≥ 241 calls per township-month
+         Hotspot months:     952 (25.0%)
+         Non-hotspot months: 2,856 (75.0%)
+
+[FEATURES]  Computing lagged features (all past-only, no leakage)...
+         A) Lag features:       calls, critical, hotspot at t-1/2/3
+         B) Rolling averages:   3m, 6m, 12m trailing windows
+         C) Trend:              3-month call direction
+         D) Seasonality:        same month, prior year
+         E) Long-run baseline:  cumulative call & hotspot rate
+         F) Momentum streak:    consecutive hotspot months
+         G) Temporal context:   month, quarter, sin/cos, season flags
+
+[WARMUP]  Dropped first 3 months per township (lag-3 requires 3 months)
+          Full panel:  3,808 rows
+          Model panel: 3,604 rows
+          Hotspot rate in model panel: 25.1%
+
+[NOTE]    Dataset covers only 13 months (2015-12 → 2016-12).
+          Full Kaggle dataset (2015–2020) recommended for production.
+          Download: https://www.kaggle.com/datasets/mchirico/montcoalert
+
+✅  Saved: data/processed/panel.csv  (3,604 × 45)
