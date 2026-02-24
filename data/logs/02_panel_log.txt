@@ -2,36 +2,36 @@
 SENTINEL  |  Step 2: Hotspot Panel Construction
 =================================================================
 
-[LOAD]   9,845 incidents
-         40 unique grid cells  (0.01° ≈ 1.1 km²)
-         300 monthly periods  (2001-01 → 2025-12)
+[LOAD]   663,522 incident records
+         68 unique townships
+         56 monthly periods  (2015-12 → 2020-07)
 
-[PANEL]  Building 40 × 300 = 12,000 cell-month grid...
-         7,448 zero-crime cell-months (62.1%) — kept as negatives
-         Mean crimes/cell-month: 0.82
-         Max crimes/cell-month:  19
+[PANEL]  Building 68 × 56 = 3,808 township-month grid...
+         5 zero-call township-months (0.1%) — retained as negatives
+         Mean calls/township-month: 174.2
+         Max calls/township-month:  1446
 
-[TARGET] Hotspot = top 25% of non-zero cell-months
-         Threshold: ≥ 3 crimes per cell-month
-         Hotspot cell-months:     1,159 (9.7%)
-         Non-hotspot cell-months: 10,841 (90.3%)
+[TARGET] Hotspot = top 25% of non-zero township-months
+         Threshold: ≥ 241 calls per township-month
+         Hotspot months:     952 (25.0%)
+         Non-hotspot months: 2,856 (75.0%)
 
 [FEATURES]  Computing lagged features (all past-only, no leakage)...
-         A) Lag features:        crimes, violent, hotspot at t-1, t-2, t-3
-         B) Rolling averages:    3m, 6m, 12m trailing windows
-         C) Trend:               3-month crime direction
-         D) Seasonality:         same month, prior year
-         E) Long-run baseline:   cumulative crime & hotspot rate
-         F) Momentum streak:     consecutive hotspot months
-         G) Area context:        community-level crime pressure
-         H) Temporal context:    month, quarter, sin/cos encoding
-         I) Spatial identity:    community area, district, beat
+         A) Lag features:       calls, critical, hotspot at t-1/2/3
+         B) Rolling averages:   3m, 6m, 12m trailing windows
+         C) Trend:              3-month call direction
+         D) Seasonality:        same month, prior year
+         E) Long-run baseline:  cumulative call & hotspot rate
+         F) Momentum streak:    consecutive hotspot months
+         G) Temporal context:   month, quarter, sin/cos, season flags
 
-[WARMUP]  Dropped first 12 months per cell (insufficient history)
-          Full panel:  12,000 rows
-          Model panel: 11,520 rows
-          Hotspot rate in model panel: 9.5%
+[WARMUP]  Dropped first 3 months per township (lag-3 requires 3 months)
+          Full panel:  3,808 rows
+          Model panel: 3,604 rows
+          Hotspot rate in model panel: 25.1%
 
-[COLUMNS]  ['grid_cell', 'period', 'total_crimes', 'violent_crimes', 'arrests', 'domestic_crimes', 'avg_severity', 'night_crimes', 'unique_types', 'lat', 'lon', 'community_area', 'district', 'beat', 'period_dt', 'is_hotspot', 'crimes_lag1', 'violent_lag1', 'hotspot_lag1', 'crimes_lag2', 'violent_lag2', 'hotspot_lag2', 'crimes_lag3', 'violent_lag3', 'hotspot_lag3', 'crimes_roll3m', 'violent_roll3m', 'hotspot_roll3m', 'crimes_roll6m', 'violent_roll6m', 'hotspot_roll6m', 'crimes_roll12m', 'violent_roll12m', 'hotspot_roll12m', 'crime_trend_3m', 'crimes_same_month_ly', 'hotspot_same_month_ly', 'cumulative_crime_rate', 'cumulative_hotspot_rate', 'hotspot_streak', 'area_crimes_lag1', 'area_crimes_roll3m', 'year', 'month', 'quarter', 'month_sin', 'month_cos', 'is_summer', 'is_winter']
+[NOTE]    Dataset covers only 13 months (2015-12 → 2016-12).
+          Full Kaggle dataset (2015–2020) recommended for production.
+          Download: https://www.kaggle.com/datasets/mchirico/montcoalert
 
-✅  Saved: ./panel.csv  (11,520 × 49)
+✅  Saved: data/processed/panel.csv  (3,604 × 45)

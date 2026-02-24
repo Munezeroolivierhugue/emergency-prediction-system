@@ -1,50 +1,79 @@
 =================================================================
-SENTINEL  |  Step 1: Data Cleaning
+SENTINEL  |  Step 1: Data Cleaning  |  Montgomery County 911
 =================================================================
 
-[LOAD]  Raw shape: 10,000 rows × 22 columns
-        Columns: ['unique_key', 'case_number', 'date', 'block', 'iucr', 'primary_type', 'description', 'location_description', 'arrest', 'domestic', 'beat', 'district', 'ward', 'community_area', 'fbi_code', 'x_coordinate', 'y_coordinate', 'year', 'updated_on', 'latitude', 'longitude', 'location']
+[LOAD]  Raw shape: 663,522 rows × 9 columns
+        Columns: ['lat', 'lng', 'desc', 'zip', 'title', 'timeStamp', 'twp', 'addr', 'e']
 
-[1]  Dropped 4 admin columns: ['unique_key', 'case_number', 'updated_on', 'location']
-     Remaining columns: 18
+        Null counts:
+          lat               0 nulls
+          lng               0 nulls
+          desc              0 nulls
+          zip          80,199 nulls  (12.1%)
+          title             0 nulls
+          timeStamp         0 nulls
+          twp             293 nulls  (0.0%)
+          addr              0 nulls
+          e                 0 nulls
 
-[2]  Parsed dates → naive UTC
-     Range: 2001-01-01  →  2026-02-09
+[1]  Splitting title → Type + Subtype
+     Type distribution:
+       EMS         332,692  (50.1%)
+       Traffic     230,208  (34.7%)
+       Fire        100,622  (15.2%)
+     Unique subtypes: 88
+     Top 10 subtypes by volume:
+       VEHICLE ACCIDENT                              184,749
+       DISABLED VEHICLE                              47,917
+       FIRE ALARM                                    38,452
+       FALL VICTIM                                   34,683
+       RESPIRATORY EMERGENCY                         34,250
+       CARDIAC EMERGENCY                             32,339
+       ROAD OBSTRUCTION                              23,237
+       SUBJECT IN PAIN                               19,650
+       HEAD INJURY                                   18,304
+       GENERAL WEAKNESS                              11,868
 
-[3]  Normalized primary_type labels:
-     'CRIM SEXUAL ASSAULT'  →  'CRIMINAL SEXUAL ASSAULT'  (19 rows merged)
-     Unique types now: 28
+[2]  Parsing timeStamp → datetime + temporal features
+     Date range: 2015-12-10  →  2020-07-29
+     Years covered: [np.int32(2015), np.int32(2016), np.int32(2017), np.int32(2018), np.int32(2019), np.int32(2020)]
+     Night calls (22:00–06:00): 103,901  (15.7%)
+     Weekend calls:             168,311  (25.4%)
 
-[4]  Null coordinate rows: 114 → DROPPED
-     Remaining rows: 9,886
+[3a] zip nulls: 80,199  (12.6%)
+     Strategy: modal zip per township → global modal fallback
+     Township modal zip: resolved 80,030
+     Global modal fallback: resolved 169
+     Cast zip float → 5-digit string (e.g. 19401)
+     Remaining nulls: 0
 
-[5]  community_area nulls: 625 → fully imputed
-       a) Grid-cell modal value: 625 resolved
-       b) District median: remaining resolved
-       c) Global fallback: 0 remaining
+[3b] twp nulls: 293  (0.03%)
+     Strategy: modal township per zip → global modal fallback
+     Remaining nulls: 0
 
-[6]  location_description nulls: 30 → filled as 'UNKNOWN'
+[4]  Creating Severity target from Subtype
+     Unmapped subtypes (965 rows) → defaulting to Medium:
+       ELEVATOR EMERGENCY                            949
+       PUBLIC SERVICE                                6
+       BARRICADED SUBJECT                            3
+       SUICIDE ATTEMPT                               2
+       BOMB THREAT                                   2
+       ANIMAL COMPLAINT                              1
+       PRISONER IN CUSTODY                           1
+       FOOT PATROL                                   1
+     Severity distribution:
+       Critical    313,963  (47.3%)
+       High        86,778  (13.1%)
+       Medium      185,996  (28.0%)
+       Low         76,785  (11.6%)
 
-[7]  Flagged 41 partial-year 2026 rows (retained)
-
-[8]  arrest / domestic cast to int (0 / 1)
-     Arrest rate:   25.1%  (2,485 arrests)
-     Domestic rate: 10.0%  (985 domestic)
-
-[9]  ward: 619 nulls — retained, excluded from model
-
-[ENRICH]  Severity tiers:
-          Tier 3 (Critical): 48 rows
-          Tier 2 (High    ): 2,421 rows
-          Tier 1 (Medium  ): 6,359 rows
-          Tier 0 (Low     ): 1,058 rows
-          High-risk total (Tier 2+3): 2,469  (25.0%)
+[5]  Dropped dummy column "e" (always 1)
+[6]  Dropped "title" (replaced by Type + Subtype)
 
 =================================================================
 CLEAN DATASET SUMMARY
 =================================================================
-  Rows:    9,886
-  Columns: 23
-  Remaining nulls:
-ward    619
-  Columns: ['date', 'block', 'iucr', 'primary_type', 'description', 'location_description', 'arrest', 'domestic', 'beat', 'district', 'ward', 'community_area', 'fbi_code', 'x_coordinate', 'y_coordinate', 'year', 'latitude', 'longitude', 'lat_grid', 'lon_grid', 'is_partial_year', 'severity', 'high_risk']
+  Rows:    663,522
+  Columns: 18
+  Remaining nulls: none
+  Columns: ['lat', 'lng', 'desc', 'zip', 'timeStamp', 'twp', 'addr', 'Type', 'Subtype', 'year', 'month', 'day', 'hour', 'day_of_week', 'is_weekend', 'is_night', 'Severity', 'severity_num']
