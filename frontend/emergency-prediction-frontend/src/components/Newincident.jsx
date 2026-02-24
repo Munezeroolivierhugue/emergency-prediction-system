@@ -51,16 +51,48 @@ const NewIncident = () => {
         setLoading(true);
         setResult(null);
 
-        // Simulate AI analysis delay
-        setTimeout(() => {
-            setLoading(false);
-            setSuccess(true);
-            setResult({
-                severity: "CRITICAL",
-                confidence: "94%",
-                recommended_response: "Dispatch 3 Units"
+        // 1. Format date and hour for the backend
+        const dateObj = new Date(formData.dateTime);
+        const dayStr = dateObj.toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", "Tue"
+
+        const requestData = {
+            type: formData.incidentType,
+            hour: dateObj.getHours(),
+            day: dayStr,
+            lat: 40.1,  // Hardcoded for now until exact location geocoding is set up
+            lng: -75.3
+        };
+
+        // 2. Call the Django Backend
+        fetch("http://127.0.0.1:8000/api/predictions/predict/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData)
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(errData => { throw new Error(errData.error || "Server Error") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                setLoading(false);
+                setSuccess(true);
+                setResult({
+                    severity: data.severity ? data.severity.toUpperCase() : "UNKNOWN",
+                    confidence: data.confidence ? `${(data.confidence * 100).toFixed(0)}%` : "N/A",
+                    recommended_response: data.recommended_response || "Determine Response"
+                });
+            })
+            .catch(err => {
+                console.error("Prediction failed:", err);
+                setLoading(false);
+                setErrors({
+                    description: `Failed to get prediction from AI server: ${err.message}. Is the backend running?`
+                });
             });
-        }, 2000);
     };
 
     return (

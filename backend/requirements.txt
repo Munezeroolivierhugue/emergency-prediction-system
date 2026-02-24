@@ -1,0 +1,15 @@
+django
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+django-filter
+python-decouple
+psycopg2-binary
+scikit-learn
+xgboost
+pandas
+numpy
+joblib
+drf-spectacular
+geopy
+whitenoise
