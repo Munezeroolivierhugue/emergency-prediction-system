@@ -24,7 +24,8 @@ class PredictionRequestSerializer(serializers.Serializer):
 class PredictionResponseSerializer(serializers.Serializer):
     """
     Serializer for formatting outgoing prediction response data.
-    Expected fields: severity, confidence.
+    Expected fields: severity, confidence, recommended_response.
     """
     severity = serializers.CharField(max_length=20) # e.g., 'Low', 'Medium', 'High', 'Critical'
-    confidence = serializers.FloatField(min_value=0.0, max_value=1.0)
+    confidence = serializers.FloatField(min_value=0.0, max_value=1.0, allow_null=True)
+    recommended_response = serializers.CharField(max_length=100)
