@@ -28,8 +28,6 @@ class Incident(models.Model):
     longitude = models.FloatField()
     location = models.CharField(max_length=255, blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    confidence = models.FloatField(null=True, blank=True)
-    status = models.CharField(max_length=20, default='Active')
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
     confidence = models.FloatField(null=True, blank=True)
