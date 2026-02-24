@@ -67,9 +67,7 @@ class EmergencyDataTransformer(BaseEstimator, TransformerMixin):
 
 class MLService:
     _model = None
-    _model_path = config('ML_MODEL_PATH', default='ml_models/severity_model.pkl')
-    
-    SEVERITY_LABELS = {0: 'Low', 1: 'Medium', 2: 'High', 3: 'Critical'}
+    _model_path = config('ML_MODEL_PATH', default='ml_models/best_advanced_model.pkl')
     
     RESPONSE_MAP = {
         'Critical': 'Dispatch 3+ Units — Immediate Response',
@@ -97,9 +95,8 @@ class MLService:
     @classmethod
     def predict_severity(cls, data: dict) -> dict:
         """
-        Build features matching the RandomForestClassifier trained in
-        notebook/train_model.py → train_api_model().
-        Expected feature order: hour, day_encoded, lat, lng, type_Fire, type_EMS, type_Traffic
+        Passes raw data to the loaded pipeline model, which internally 
+        uses EmergencyDataTransformer to engineer features.
         """
         model = cls.load_model()
         # Their previous manual encoding is removed and replaced by the Pipeline wrapper logic
