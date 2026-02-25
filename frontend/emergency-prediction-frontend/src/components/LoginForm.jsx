@@ -96,7 +96,7 @@ const LoginForm = () => {
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-primary text-white rounded-1.5xl font-bold text-lg shadow-lg shadow-primary/30 hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-primary text-white rounded-1.5xl font-bold text-lg shadow-lg shadow-primary/30 hover:bg-primary/90 hover:-tranneutral-y-0.5 active:tranneutral-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
             >
                 {isSubmitting ? (
                     <Loader2 className="w-6 h-6 animate-spin" />

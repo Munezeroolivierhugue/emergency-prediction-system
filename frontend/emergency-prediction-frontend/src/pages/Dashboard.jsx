@@ -28,8 +28,8 @@ export default function Dashboard() {
         // Normalize Statistics Data
         let normalizedStats = statsRes.data || DUMMY_STATS;
         if (normalizedStats.by_type && !Array.isArray(normalizedStats.by_type)) {
-          // Convert dict to expected array format
-          const typeColors = { "EMS": "#dc2626", "Fire": "#ef4444", "Traffic": "#f97316" };
+          // Convert dict to expected array format using muted professional colors
+          const typeColors = { "EMS": "#334155", "Fire": "#475569", "Traffic": "#94a3b8" };
           normalizedStats.by_type = Object.entries(normalizedStats.by_type).map(([key, value]) => ({
             name: key,
             value: value,
@@ -76,19 +76,18 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8 transition-colors duration-300">
 
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             Command Center
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm">
             Real-time emergency monitoring overview
           </p>
         </div>
         <div className="mt-4 md:mt-0">
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer">
-            <AlertTriangle className="w-5 h-5" />
+          <button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 cursor-pointer shadow-sm">
+            <AlertTriangle className="w-4 h-4" />
             Trigger Emergency Alert
           </button>
         </div>
