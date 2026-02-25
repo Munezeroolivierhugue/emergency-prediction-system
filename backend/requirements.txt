@@ -7,11 +7,9 @@ python-decouple
 psycopg2-binary
 scikit-learn
 xgboost
-lightgbm
 pandas
 numpy
 joblib
 drf-spectacular
 geopy
 whitenoise
-gunicorn
