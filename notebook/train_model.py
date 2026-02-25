@@ -239,16 +239,17 @@ def train_and_save():
     print("Retraining BEST model on full dataset...")
     best_model.fit(X, y, regressor__sample_weight=sample_weights_all)
 
-    # Output directory
-    output_dir = '../model'
+    # Save directly to backend/ml_models/ — this is where ml_service.py loads from.
+    # Try relative paths from notebook/ or project root.
+    output_dir = '../backend/ml_models'
     if not os.path.exists(output_dir):
-        output_dir = 'model'
+        output_dir = 'backend/ml_models'
         if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-            
+            os.makedirs(output_dir, exist_ok=True)
+
     output_path = os.path.join(output_dir, 'best_advanced_model.pkl')
     joblib.dump(best_model, output_path)
-    print(f"Model saved to {output_path}")
+    print(f"Advanced model saved to {output_path}")
 
 def train_api_model():
     print("Training simpler model for API...")
