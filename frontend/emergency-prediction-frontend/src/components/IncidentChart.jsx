@@ -2,9 +2,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { motion } from 'framer-motion';
 
 const defaultData = [
-    { name: 'Fire', value: 35, color: '#ef4444' },
-    { name: 'EMS', value: 45, color: '#dc2626' },
-    { name: 'Traffic', value: 15, color: '#f97316' },
+    { name: 'Fire', value: 35, color: '#475569' }, // neutral-600
+    { name: 'EMS', value: 45, color: '#334155' },  // neutral-700
+    { name: 'Traffic', value: 15, color: '#94a3b8' }, // neutral-400
 ];
 
 export default function IncidentChart({ data = defaultData, total }) {
@@ -16,7 +16,7 @@ export default function IncidentChart({ data = defaultData, total }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-card p-6 rounded-2xl shadow-sm border border-border"
+            className="bg-card p-6 rounded-xl border border-border"
         >
             <h3 className="text-lg font-bold text-foreground mb-4">
                 Incident Types

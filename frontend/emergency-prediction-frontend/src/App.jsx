@@ -8,7 +8,7 @@ function App() {
   const isAuthPage = ["/login", "/register"].includes(location.pathname);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex h-screen bg-gray-50 dark:bg-neutral-950 transition-colors duration-300">
       <Toaster position="top-right" />
       {!isAuthPage && <Sidebar />}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${!isAuthPage ? "ml-64" : ""}`}>

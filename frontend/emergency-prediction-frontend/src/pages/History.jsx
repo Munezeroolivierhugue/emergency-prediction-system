@@ -45,9 +45,9 @@ function SeverityBadge({ severity }) {
   };
 
   const key = (severity || "").toLowerCase();
-  const cls = `${base} ${severityStyles[key] || "border-slate-300 bg-slate-50 text-slate-500"
+  const cls = `${base} ${severityStyles[key] || "border-neutral-300 bg-neutral-50 text-neutral-500"
     }`;
-  const dot = dotColors[key] || "bg-slate-400";
+  const dot = dotColors[key] || "bg-neutral-400";
 
   return (
     <span className={cls}>
@@ -111,7 +111,7 @@ export default function History() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
           Incident History
         </h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
           Browse and filter past incident records
         </p>
       </div>
@@ -120,7 +120,7 @@ export default function History() {
       <div className="flex items-center gap-3 mb-6 w-full flex-wrap">
         <div className="relative flex-1 min-w-[700px]">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500 shrink-0 pointer-events-none"
+            className="absolute left-3 top-1/2 -tranneutral-y-1/2 w-5 h-5 text-gray-400 dark:text-neutral-500 shrink-0 pointer-events-none"
             strokeWidth={2}
           />
           <input
@@ -128,7 +128,7 @@ export default function History() {
             placeholder="Search by ID or Location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-20 pr-4 py-3 rounded-xl bg-[#F0F2F5] dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-500 focus:border-transparent"
+            className="w-full pl-20 pr-4 py-3 rounded-xl bg-[#F0F2F5] dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-500 focus:border-transparent"
           />
         </div>
         <div className="relative">
@@ -139,10 +139,10 @@ export default function History() {
               e.stopPropagation();
               setDropdownOpen((o) => !o);
             }}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#F0F2F5] dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-200 min-w-[180px] justify-between hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#F0F2F5] dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 text-gray-700 dark:text-neutral-200 min-w-[180px] justify-between hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
           >
             <span>{severityFilter}</span>
-            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-slate-400 shrink-0" />
+            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-neutral-400 shrink-0" />
           </button>
           {dropdownOpen && (
             <>
@@ -151,7 +151,7 @@ export default function History() {
                 aria-hidden="true"
                 onClick={() => setDropdownOpen(false)}
               />
-              <ul className="absolute top-full left-0 mt-2 min-w-[180px] rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 shadow-lg z-[101] py-1 max-h-60 overflow-auto">
+              <ul className="absolute top-full left-0 mt-2 min-w-[180px] rounded-xl bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 shadow-lg z-[101] py-1 max-h-60 overflow-auto">
                 {SEVERITIES.map((s) => (
                   <li key={s}>
                     <button
@@ -162,8 +162,8 @@ export default function History() {
                         setDropdownOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${severityFilter === s
-                        ? "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white font-medium"
-                        : "text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                        ? "bg-gray-100 dark:bg-neutral-700 text-gray-900 dark:text-white font-medium"
+                        : "text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-700"
                         }`}
                     >
                       {s}
@@ -177,30 +177,30 @@ export default function History() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 overflow-hidden shadow-sm">
+      <div className="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/50 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-slate-700 bg-gray-50/80 dark:bg-slate-800/80">
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+              <tr className="border-b border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-800/80">
+                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
                   ID
                 </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
                   Type
                 </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
                   Location
                 </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
                   Time
                 </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
                   Severity
                 </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
                   Confidence
                 </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
                   Status
                 </th>
               </tr>
@@ -229,9 +229,9 @@ export default function History() {
                   return (
                     <tr
                       key={row.id}
-                      className={`border-b border-gray-100 dark:border-slate-700/80 transition-colors ${i % 2 === 0
-                        ? "bg-white dark:bg-slate-800/30"
-                        : "bg-gray-50/50 dark:bg-slate-800/50"
+                      className={`border-b border-gray-100 dark:border-neutral-700/80 transition-colors ${i % 2 === 0
+                        ? "bg-white dark:bg-neutral-800/30"
+                        : "bg-gray-50/50 dark:bg-neutral-800/50"
                         }`}
                     >
                       <td className="px-5 py-3.5">
@@ -239,22 +239,22 @@ export default function History() {
                           {displayId}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
                         {row.type || row.incident_type}
                       </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
                         {row.location || row.twp || "Unknown"}
                       </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
                         {displayTime}
                       </td>
                       <td className="px-5 py-3.5">
                         <SeverityBadge severity={row.severity} />
                       </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
                         {row.confidence || "N/A"}
                       </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-slate-200">
+                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
                         {row.status || "Resolved"}
                       </td>
                     </tr>
@@ -265,16 +265,16 @@ export default function History() {
           </table>
         </div>
         {totalCount > 0 && (
-          <div className="flex items-center justify-between gap-4 px-5 py-3 border-t border-gray-100 dark:border-slate-700 text-xs">
+          <div className="flex items-center justify-between gap-4 px-5 py-3 border-t border-gray-100 dark:border-neutral-700 text-xs">
             {/* Rows per page selector */}
-            <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-neutral-400">
               <span className="hidden sm:inline">Rows per page</span>
               <select
                 value={String(pageSize)}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
                 }}
-                className="h-8 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 pr-6 text-xs text-gray-700 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-500"
+                className="h-8 rounded-md border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-2 pr-6 text-xs text-gray-700 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-500"
               >
                 {PAGE_SIZE_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>
@@ -285,17 +285,17 @@ export default function History() {
             </div>
 
             {/* Range text */}
-            <div className="flex-1 text-center text-gray-500 dark:text-slate-400">
+            <div className="flex-1 text-center text-gray-500 dark:text-neutral-400">
               {startIndex}-{endIndex} of {totalCount}
             </div>
 
             {/* Pagination controls */}
-            <div className="flex items-center gap-1 text-gray-600 dark:text-slate-400">
+            <div className="flex items-center gap-1 text-gray-600 dark:text-neutral-400">
               <button
                 type="button"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronsLeft className="w-4 h-4" />
               </button>
@@ -303,7 +303,7 @@ export default function History() {
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -313,7 +313,7 @@ export default function History() {
                   setCurrentPage((p) => Math.min(pageCount, p + 1))
                 }
                 disabled={currentPage >= pageCount}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -321,7 +321,7 @@ export default function History() {
                 type="button"
                 onClick={() => setCurrentPage(pageCount)}
                 disabled={currentPage >= pageCount}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronsRight className="w-4 h-4" />
               </button>
