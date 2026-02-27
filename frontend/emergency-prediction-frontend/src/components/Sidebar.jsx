@@ -33,13 +33,13 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 flex flex-col transition-colors duration-300 z-50">
+        <aside className="fixed left-0 top-0 h-screen w-64 bg-background border-r border-border flex flex-col transition-colors duration-300 z-50">
             {/* Header / Logo */}
             <div className="p-6">
                 <div className="flex items-center space-x-2">
-                    <div className="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
+                    <div className="bg-primary/10 p-2 rounded-lg">
                         <svg
-                            className="w-6 h-6 text-red-600 dark:text-red-500"
+                            className="w-6 h-6 text-primary"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -54,10 +54,10 @@ export default function Sidebar() {
                         </svg>
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+                        <h1 className="text-lg font-bold text-foreground">
                             Emergency
                         </h1>
-                        <p className="text-[10px] text-gray-500 dark:text-slate-400 tracking-wider uppercase">
+                        <p className="text-[10px] text-muted-foreground tracking-wider uppercase font-medium">
                             Prediction System
                         </p>
                     </div>
@@ -74,12 +74,12 @@ export default function Sidebar() {
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${active
-                                ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium"
-                                : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-200"
+                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 group ${active
+                                ? "bg-primary text-primary-foreground font-medium"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                 }`}
                         >
-                            <Icon size={20} className={active ? "text-red-600 dark:text-red-400" : "text-gray-400 dark:text-slate-500 group-hover:text-gray-600 dark:group-hover:text-slate-300"} />
+                            <Icon size={20} className={active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"} />
                             <span>{item.label}</span>
                         </Link>
                     )
@@ -87,12 +87,12 @@ export default function Sidebar() {
             </nav>
 
             {/* Footer Actions */}
-            <div className="p-4 border-t border-gray-100 dark:border-slate-800 space-y-4">
+            <div className="p-4 border-t border-border space-y-4">
 
                 {/* Theme Toggle */}
                 <button
                     onClick={toggleTheme}
-                    className="flex items-center space-x-3 px-4 py-2 w-full text-left rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                    className="flex items-center space-x-3 px-4 py-2 w-full text-left rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
                     {dark ? <Sun size={20} /> : <Moon size={20} />}
                     <span>{dark ? "Light Mode" : "Dark Mode"}</span>
@@ -100,14 +100,14 @@ export default function Sidebar() {
 
                 {/* User Profile */}
                 <div className="flex items-center space-x-3 px-4 py-2">
-                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                         D1
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                             Dispatcher 1
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-slate-400 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                             On Shift
                         </p>
                     </div>
@@ -116,7 +116,7 @@ export default function Sidebar() {
                 {/* Logout */}
                 <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-3 px-4 py-2 w-full text-left text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    className="flex items-center space-x-3 px-4 py-2 w-full text-left text-muted-foreground hover:text-destructive transition-colors"
                 >
                     <LogOut size={18} />
                     <span className="text-sm">Logout</span>
