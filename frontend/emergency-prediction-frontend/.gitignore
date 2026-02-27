@@ -22,4 +22,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-FRONTEND_DATA_CONTRACT (1).md
+FRONTEND_DATA_CONTRACT (1).md.vite
