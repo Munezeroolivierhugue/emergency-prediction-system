@@ -254,7 +254,7 @@ export default function History() {
               ) : incidents.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="py-20 text-center text-muted-foreground text-sm">
-                    No incidents match your filters.
+                    No incidents match your filters
                   </td>
                 </tr>
               ) : (
