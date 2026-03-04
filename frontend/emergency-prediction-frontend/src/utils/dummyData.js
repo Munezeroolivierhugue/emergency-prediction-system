@@ -2,9 +2,9 @@ export const DUMMY_STATS = {
     total_incidents: 2045,
     critical_count: 12,
     by_type: [
-        { name: "EMS", value: 980, color: "#334155" },     // neutral-700
-        { name: "Fire", value: 520, color: "#525252" },    // neutral-500
-        { name: "Traffic", value: 545, color: "#a3a3a3" }  // neutral-400
+        { name: "Fire", value: 520, color: "#ef4444" },
+        { name: "EMS", value: 980, color: "#b91c1c" },
+        { name: "Traffic", value: 545, color: "#f97316" }
     ]
 };
 

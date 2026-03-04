@@ -29,7 +29,7 @@ export default function Dashboard() {
         let normalizedStats = statsRes.data || DUMMY_STATS;
         if (normalizedStats.by_type && !Array.isArray(normalizedStats.by_type)) {
           // Convert dict to expected array format using muted professional colors
-          const typeColors = { "EMS": "#334155", "Fire": "#475569", "Traffic": "#94a3b8" };
+          const typeColors = { "Fire": "#ef4444", "EMS": "#b91c1c", "Traffic": "#f97316" };
           normalizedStats.by_type = Object.entries(normalizedStats.by_type).map(([key, value]) => ({
             name: key,
             value: value,
@@ -74,12 +74,12 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div className="w-full max-w-full overflow-x-hidden bg-background text-foreground transition-colors duration-300">
 
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 lg:mb-8 gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
             Command Center
           </h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">
@@ -95,7 +95,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-5 sm:mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
         <StatCard
           title="Total Incidents"
           value={stats?.total_incidents?.toLocaleString() || (loading ? "..." : "1,245")}
@@ -124,7 +124,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-5 sm:mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6 lg:mb-8">
         <div className="lg:col-span-2">
           <TrafficChart data={hourlyData} />
         </div>
@@ -134,7 +134,7 @@ export default function Dashboard() {
       </div>
 
       {/* Severity Trend Section */}
-      <div className="w-full mb-6 sm:mb-8">
+      <div className="w-full mb-4 sm:mb-6 lg:mb-8">
         <SeverityChart data={severityData} />
       </div>
 
