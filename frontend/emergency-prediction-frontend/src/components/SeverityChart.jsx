@@ -23,7 +23,7 @@ export default function SeverityChart({ data = defaultData }) {
             <h3 className="text-lg font-bold text-foreground mb-6">
                 Severity Trend (7 Days)
             </h3>
-            <div className="h-80 w-full">
+            <div className="h-52 sm:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={chartData}
@@ -66,10 +66,10 @@ export default function SeverityChart({ data = defaultData }) {
                             wrapperStyle={{ paddingBottom: '20px' }}
                             formatter={(value) => <span className="text-muted-foreground text-sm font-medium ml-1 capitalize">{value}</span>}
                         />
-                        <Bar dataKey="low" name="Low" fill="#cbd5e1" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                        <Bar dataKey="medium" name="Medium" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                        <Bar dataKey="high" name="High" fill="#64748b" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                        <Bar dataKey="critical" name="Critical" fill="#334155" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                        <Bar dataKey="low" name="Low" fill="#22c55e" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                        <Bar dataKey="medium" name="Medium" fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                        <Bar dataKey="high" name="High" fill="#ea580c" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                        <Bar dataKey="critical" name="Critical" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={40} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>

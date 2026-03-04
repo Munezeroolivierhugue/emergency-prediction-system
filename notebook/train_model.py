@@ -1,8 +1,20 @@
-import pandas as pd
-import numpy as np
-import os
 import joblib
+import sys
+import os
+import numpy as np
+import pandas as pd
 
+
+# CRITICAL: We MUST import EmergencyDataTransformer from the backend module
+# so that the pickled model stores the correct module path. 
+# so that the pickled model stores 'predictions.transformers' as the module path.
+# This is the ONLY way Django can successfully unpickle it.
+script_dir = os.path.dirname(os.path.abspath(__file__))
+backend_path = os.path.join(script_dir, '..', 'backend')
+if backend_path not in sys.path:
+    sys.path.append(backend_path)
+
+from predictions.transformers import EmergencyDataTransformer # Changed import path
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, KFold
 from sklearn.pipeline import Pipeline
@@ -63,71 +75,30 @@ def calculate_dynamic_severity(row):
     return int(max(1, min(10, round(final_score))))
 
 
-class EmergencyDataTransformer(BaseEstimator, TransformerMixin):
-    """
-    Custom transformer to align the backend's raw input schema:
-    ['type', 'hour', 'day', 'lat', 'lng']
-    into the engineered features expected by the model.
-    """
-    def __init__(self, n_clusters=10):
-        self.n_clusters = n_clusters
-        self.kmeans = KMeans(n_clusters=self.n_clusters, random_state=42, n_init=10)
-        self.day_mapping = {'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6}
-        self.mean_lat = 0.0
-        self.mean_lng = 0.0
-
-    def fit(self, X, y=None):
-        X_copy = X.copy()
-        self.mean_lat = X_copy['lat'].mean()
-        self.mean_lng = X_copy['lng'].mean()
-        
-        locations = X_copy[['lat', 'lng']].fillna(value={'lat': self.mean_lat, 'lng': self.mean_lng})
-        self.kmeans.fit(locations)
-        return self
-
-    def transform(self, X):
-        X_out = X.copy()
-        
-        # 1. Fill NAs for coordinates
-        locations = X_out[['lat', 'lng']].fillna(value={'lat': self.mean_lat, 'lng': self.mean_lng})
-        X_out['lat'] = locations['lat']
-        X_out['lng'] = locations['lng']
-        
-        # 2. Region Cluster
-        X_out['Region_Cluster'] = self.kmeans.predict(locations)
-        
-        # 3. Time Encoding (hour)
-        X_out['Hour_Sin'] = np.sin(2 * np.pi * X_out['hour'] / 24)
-        X_out['Hour_Cos'] = np.cos(2 * np.pi * X_out['hour'] / 24)
-        
-        # 4. Day Encoding
-        X_out['day_num'] = X_out['day'].map(self.day_mapping).fillna(0)
-        X_out['DayOfWeek_Sin'] = np.sin(2 * np.pi * X_out['day_num'] / 7)
-        X_out['DayOfWeek_Cos'] = np.cos(2 * np.pi * X_out['day_num'] / 7)
-        
-        # Select final engineered features
-        features = [
-            'type', 
-            'lat', 'lng', 'Region_Cluster',
-            'Hour_Sin', 'Hour_Cos', 
-            'DayOfWeek_Sin', 'DayOfWeek_Cos'
-        ]
-        return X_out[features]
+# EmergencyDataTransformer definition removed - NOW IMPORTED FROM BACKEND.
+# This ensures that both training and production agree on the same module path.
 
 def train_and_save():
     print("Loading data...")
-    data_path = '../data/911.csv'
-    if not os.path.exists(data_path):
-        data_path = 'data/911.csv'
+    # Get the directory where the script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     
-    if not os.path.exists(data_path):
-        print(f"Main dataset not found at {data_path}. Checking for sample data...")
-        data_path = 'data/sample_911.csv'
-        if not os.path.exists(data_path):
-            data_path = '../data/sample_911.csv'
+    # Try different possible locations for the data relative to the script or root
+    possible_paths = [
+        os.path.join(script_dir, '..', 'data', '911.csv'),
+        os.path.join(script_dir, 'data', '911.csv'),
+        os.path.join(script_dir, '..', 'data', 'sample_911.csv'),
+        os.path.join(script_dir, 'data', 'sample_911.csv'),
+    ]
+    
+    data_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            data_path = path
+            break
             
-    if not os.path.exists(data_path):
-        raise FileNotFoundError("Could not find 911.csv or sample_911.csv")
+    if not data_path:
+        raise FileNotFoundError("Could not find 911.csv or sample_911.csv in expected locations.")
 
     print(f"Using dataset: {data_path}")
     df = pd.read_csv(data_path, nrows=200000) 
@@ -253,16 +224,21 @@ def train_and_save():
 
 def train_api_model():
     print("Training simpler model for API...")
-    data_path = '../data/911.csv'
-    if not os.path.exists(data_path):
-        data_path = 'data/911.csv'
-    if not os.path.exists(data_path):
-        data_path = 'data/sample_911.csv'
-    if not os.path.exists(data_path):
-        data_path = '../data/sample_911.csv'
-        
-    if not os.path.exists(data_path):
-        print(f"Skipping API model training. Dataset not found: {data_path}")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    possible_paths = [
+        os.path.join(script_dir, '..', 'data', '911.csv'),
+        os.path.join(script_dir, '..', 'data', 'sample_911.csv'),
+    ]
+    
+    data_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            data_path = path
+            break
+            
+    if not data_path:
+        print(f"Skipping API model training. Dataset not found.")
         return
 
     df = pd.read_csv(data_path, nrows=50000)
@@ -296,11 +272,9 @@ def train_api_model():
     model = RandomForestClassifier(n_estimators=50, random_state=42)
     model.fit(X, y)
     
-    out_dir = '../backend/ml_models'
+    out_dir = os.path.join(script_dir, '..', 'backend', 'ml_models')
     if not os.path.exists(out_dir):
-        out_dir = 'backend/ml_models'
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir, exist_ok=True)
+        os.makedirs(out_dir, exist_ok=True)
             
     out_path = os.path.join(out_dir, 'severity_model.pkl')
     joblib.dump(model, out_path)

@@ -2,9 +2,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { motion } from 'framer-motion';
 
 const defaultData = [
-    { name: 'Fire', value: 35, color: '#475569' }, // neutral-600
-    { name: 'EMS', value: 45, color: '#334155' },  // neutral-700
-    { name: 'Traffic', value: 15, color: '#94a3b8' }, // neutral-400
+    { name: 'Fire', value: 35, color: '#4b5563' },
+    { name: 'EMS', value: 45, color: '#374151' },
+    { name: 'Traffic', value: 15, color: '#9ca3af' },
 ];
 
 export default function IncidentChart({ data = defaultData, total }) {
@@ -21,7 +21,7 @@ export default function IncidentChart({ data = defaultData, total }) {
             <h3 className="text-lg font-bold text-foreground mb-4">
                 Incident Types
             </h3>
-            <div className="h-80 w-full relative">
+            <div className="h-52 sm:h-72 w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
