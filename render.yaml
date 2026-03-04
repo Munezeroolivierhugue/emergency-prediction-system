@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: emergency-prediction-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn emergency_system.wsgi:application --bind 0.0.0.0:$PORT"
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: emergency-prediction-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://emergency-ai.netlify.app"   # ← change this
+      - key: ML_MODEL_PATH
+        value: "ml_models/best_advanced_model.pkl"
+
+databases:
+  - name: emergency-prediction-db
+    plan: free

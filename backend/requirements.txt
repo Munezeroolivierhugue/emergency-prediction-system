@@ -13,3 +13,5 @@ joblib
 drf-spectacular
 geopy
 whitenoise
+gunicorn
+dj-database-url
