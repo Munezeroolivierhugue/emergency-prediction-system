@@ -43,7 +43,7 @@ export default function TrafficChart({ data = defaultData }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-card p-6 rounded-2xl shadow-sm border border-border"
+            className="bg-card p-6 rounded-xl border border-border"
         >
             <h3 className="text-lg font-bold text-foreground mb-6">
                 Incoming Calls (24h)
@@ -56,7 +56,7 @@ export default function TrafficChart({ data = defaultData }) {
                     >
                         <defs>
                             <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
+                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
                                 <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                             </linearGradient>
                         </defs>
@@ -83,15 +83,19 @@ export default function TrafficChart({ data = defaultData }) {
                                 backgroundColor: "hsl(var(--card))",
                                 borderRadius: "8px",
                                 border: "1px solid hsl(var(--border))",
+<<<<<<< HEAD
                                 boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+=======
+                                boxShadow: "0 2px 4px -1px rgb(0 0 0 / 0.05)",
+>>>>>>> dev
                                 color: "hsl(var(--card-foreground))",
                             }}
-                            itemStyle={{ color: "#DC2626" }}
+                            itemStyle={{ color: "hsl(var(--primary))" }}
                         />
                         <Area
                             type="monotone"
                             dataKey="calls"
-                            stroke="#DC2626"
+                            stroke="hsl(var(--primary))"
                             strokeWidth={2}
                             fillOpacity={1}
                             fill="url(#colorCalls)"

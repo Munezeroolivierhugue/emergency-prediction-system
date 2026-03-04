@@ -11,7 +11,11 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
+<<<<<<< HEAD
     <div className="flex h-screen bg-background transition-colors duration-300">
+=======
+    <div className="flex h-screen bg-gray-50 dark:bg-neutral-950 transition-colors duration-300">
+>>>>>>> dev
       <Toaster position="top-right" />
       {!isAuthPage && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${!isAuthPage ? "lg:ml-64" : ""}`}>

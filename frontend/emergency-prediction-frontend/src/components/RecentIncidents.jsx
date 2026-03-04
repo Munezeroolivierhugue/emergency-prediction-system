@@ -48,24 +48,24 @@ const SeverityBadge = ({ severity }) => {
 
     switch (severity.toLowerCase()) {
         case "critical":
-            styles = "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400 border border-red-200 dark:border-red-900 critical-pulse";
+            styles = "bg-destructive/10 text-destructive border border-destructive/20";
             break;
         case "high":
-            styles = "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 border border-orange-200 dark:border-orange-900";
+            styles = "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20";
             break;
         case "medium":
-            styles = "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-900";
+            styles = "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
             break;
         case "low":
-            styles = "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400 border border-green-200 dark:border-green-900";
+            styles = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
             break;
         default:
-            styles = "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-400 border border-gray-200 dark:border-slate-700";
+            styles = "bg-muted text-muted-foreground border border-border";
     }
 
     return (
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 w-fit ${styles}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${severity.toLowerCase() === 'critical' ? 'bg-current animate-pulse' : 'bg-current'}`}></span>
+        <span className={`px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 w-fit transition-colors ${styles}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
             {severity}
         </span>
     );

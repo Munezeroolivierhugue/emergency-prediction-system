@@ -6,6 +6,7 @@ export default function StatCard({ title, value, subtext, icon: Icon, trend }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+<<<<<<< HEAD
             className="relative overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:h-[2px] before:bg-gradient-to-r before:from-transparent before:via-primary before:to-transparent before:content-[''] bg-card p-3 sm:p-5 rounded-2xl shadow-sm border border-border hover:shadow-md transition-shadow"
         >
             <div className="flex justify-between items-start">
@@ -19,6 +20,21 @@ export default function StatCard({ title, value, subtext, icon: Icon, trend }) {
                 </div>
                 <div className="p-1.5 sm:p-3 bg-primary/10 rounded-xl shrink-0">
                     <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+=======
+            className="bg-card p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 transition-colors"
+        >
+            <div className="flex justify-between items-start">
+                <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {title}
+                    </p>
+                    <h3 className="text-2xl font-bold text-foreground mt-2">
+                        {value}
+                    </h3>
+                </div>
+                <div className="p-2.5 bg-primary/10 rounded-lg">
+                    <Icon className="w-5 h-5 text-primary" />
+>>>>>>> dev
                 </div>
             </div>
 
