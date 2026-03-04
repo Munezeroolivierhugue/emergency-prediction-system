@@ -75,10 +75,10 @@ export default function Settings() {
   const [refreshInterval, setRefreshInterval] = useState(30);
 
   return (
-    <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-gray-900 dark:text-slate-100 p-6 transition-colors duration-300">
+    <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-gray-900 dark:text-slate-100 p-4 sm:p-6 transition-colors duration-300">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
           Settings
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
@@ -86,7 +86,7 @@ export default function Settings() {
         </p>
       </div>
 
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-4 sm:space-y-6">
         {/* Notifications */}
         <SettingsSection
           icon={Bell}

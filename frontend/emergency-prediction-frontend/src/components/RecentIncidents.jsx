@@ -92,52 +92,54 @@ export default function RecentIncidents({ incidents: propIncidents, loading }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
-            className="bg-card p-6 rounded-2xl shadow-sm border border-border mt-8"
+            className="bg-card p-4 sm:p-6 rounded-2xl shadow-sm border border-border mt-6 sm:mt-8"
         >
-            <h3 className="text-lg font-bold text-foreground mb-6">
+            <h3 className="text-base sm:text-lg font-bold text-foreground mb-4 sm:mb-6">
                 Recent Incidents
             </h3>
 
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b border-border text-left">
-                            <th className="pb-4 pl-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">ID</th>
-                            <th className="pb-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Type</th>
-                            <th className="pb-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Location</th>
-                            <th className="pb-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Severity</th>
-                            <th className="pb-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Confidence</th>
-                            <th className="pb-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                        {displayIncidents.map((incident) => {
-                            const displayId = typeof incident.id === 'number' ? `INC-${incident.id}` : incident.id;
-                            return (
-                                <tr key={incident.id} className="group hover:bg-muted/30 transition-colors">
-                                    <td className="py-4 pl-2 text-sm font-medium text-primary cursor-pointer hover:underline hover:text-red-700 transition-colors">
-                                        {displayId}
-                                    </td>
-                                    <td className="py-4 text-sm text-foreground font-medium">
-                                        {incident.type}
-                                    </td>
-                                    <td className="py-4 text-sm text-muted-foreground">
-                                        {incident.location || incident.twp || "Unknown"}
-                                    </td>
-                                    <td className="py-4">
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                    <table className="min-w-full">
+                        <thead>
+                            <tr className="border-b border-border text-left">
+                                <th className="pb-3 sm:pb-4 pl-4 sm:pl-2 text-xs font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">ID</th>
+                                <th className="pb-3 sm:pb-4 px-2 text-xs font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Type</th>
+                                <th className="pb-3 sm:pb-4 px-2 text-xs font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Location</th>
+                                <th className="pb-3 sm:pb-4 px-2 text-xs font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Severity</th>
+                                <th className="pb-3 sm:pb-4 px-2 text-xs font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Confidence</th>
+                                <th className="pb-3 sm:pb-4 pr-4 sm:pr-2 text-xs font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {displayIncidents.map((incident) => {
+                                const displayId = typeof incident.id === 'number' ? `INC-${incident.id}` : incident.id;
+                                return (
+                                    <tr key={incident.id} className="group hover:bg-muted/30 transition-colors">
+                                        <td className="py-3 sm:py-4 pl-4 sm:pl-2 text-xs sm:text-sm font-medium text-primary cursor-pointer hover:underline hover:text-red-700 transition-colors whitespace-nowrap">
+                                            {displayId}
+                                        </td>
+                                        <td className="py-3 sm:py-4 px-2 text-xs sm:text-sm text-foreground font-medium whitespace-nowrap">
+                                            {incident.type}
+                                        </td>
+                                        <td className="py-3 sm:py-4 px-2 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+                                            {incident.location || incident.twp || "Unknown"}
+                                        </td>
+                                        <td className="py-3 sm:py-4 px-2 whitespace-nowrap">
                                         <SeverityBadge severity={incident.severity || "Low"} />
                                     </td>
-                                    <td className="py-4 text-sm text-foreground font-semibold">
-                                        {incident.confidence || "N/A"}
-                                    </td>
-                                    <td className="py-4 text-sm text-muted-foreground">
-                                        {incident.status || "Resolved"}
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                        <td className="py-3 sm:py-4 px-2 text-xs sm:text-sm text-foreground font-semibold whitespace-nowrap">
+                                            {incident.confidence || "N/A"}
+                                        </td>
+                                        <td className="py-3 sm:py-4 pr-4 sm:pr-2 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+                                            {incident.status || "Resolved"}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </motion.div>
     );

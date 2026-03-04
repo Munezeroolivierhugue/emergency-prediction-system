@@ -105,10 +105,10 @@ export default function History() {
   const endIndex = Math.min(totalCount, currentPage * pageSize);
 
   return (
-    <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-[#1A1A1A] dark:text-[#F1F5F9] p-6">
+    <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-[#1A1A1A] dark:text-[#F1F5F9] p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
           Incident History
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
@@ -116,9 +116,9 @@ export default function History() {
         </p>
       </div>
 
-      {/* Search and filter — long search bar + severities dropdown */}
-      <div className="flex items-center gap-3 mb-6 w-full flex-wrap">
-        <div className="relative flex-1 min-w-[700px]">
+      {/* Search and filter */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6 w-full">
+        <div className="relative flex-1 min-w-0">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500 shrink-0 pointer-events-none"
             strokeWidth={2}
@@ -128,10 +128,10 @@ export default function History() {
             placeholder="Search by ID or Location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-20 pr-4 py-3 rounded-xl bg-[#F0F2F5] dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-500 focus:border-transparent"
+            className="w-full pl-10 sm:pl-20 pr-4 py-3 rounded-xl bg-[#F0F2F5] dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
           />
         </div>
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <button
             type="button"
             onClick={(e) => {
@@ -139,7 +139,7 @@ export default function History() {
               e.stopPropagation();
               setDropdownOpen((o) => !o);
             }}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#F0F2F5] dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-200 min-w-[180px] justify-between hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#F0F2F5] dark:bg-slate-800 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-200 w-full sm:min-w-[180px] justify-between hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors text-sm sm:text-base"
           >
             <span>{severityFilter}</span>
             <ChevronDown className="w-5 h-5 text-gray-500 dark:text-slate-400 shrink-0" />
@@ -151,7 +151,7 @@ export default function History() {
                 aria-hidden="true"
                 onClick={() => setDropdownOpen(false)}
               />
-              <ul className="absolute top-full left-0 mt-2 min-w-[180px] rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 shadow-lg z-[101] py-1 max-h-60 overflow-auto">
+              <ul className="absolute top-full left-0 mt-2 w-full sm:min-w-[180px] rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 shadow-lg z-[101] py-1 max-h-60 overflow-auto">
                 {SEVERITIES.map((s) => (
                   <li key={s}>
                     <button
@@ -265,10 +265,10 @@ export default function History() {
           </table>
         </div>
         {totalCount > 0 && (
-          <div className="flex items-center justify-between gap-4 px-5 py-3 border-t border-gray-100 dark:border-slate-700 text-xs">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 sm:px-5 py-3 border-t border-gray-100 dark:border-slate-700 text-xs">
             {/* Rows per page selector */}
             <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
-              <span className="hidden sm:inline">Rows per page</span>
+              <span className="text-xs sm:text-sm">Rows per page</span>
               <select
                 value={String(pageSize)}
                 onChange={(e) => {
@@ -285,7 +285,7 @@ export default function History() {
             </div>
 
             {/* Range text */}
-            <div className="flex-1 text-center text-gray-500 dark:text-slate-400">
+            <div className="flex-1 text-center text-gray-500 dark:text-slate-400 text-xs sm:text-sm">
               {startIndex}-{endIndex} of {totalCount}
             </div>
 
