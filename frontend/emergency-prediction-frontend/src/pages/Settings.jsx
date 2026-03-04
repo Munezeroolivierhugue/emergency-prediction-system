@@ -75,11 +75,7 @@ export default function Settings() {
   const [refreshInterval, setRefreshInterval] = useState(30);
 
   return (
-<<<<<<< HEAD
     <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-gray-900 dark:text-slate-100 p-4 sm:p-6 transition-colors duration-300">
-=======
-    <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-gray-900 dark:text-neutral-100 p-6 transition-colors duration-300">
->>>>>>> dev
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">

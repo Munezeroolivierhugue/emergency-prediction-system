@@ -76,17 +76,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
 
-<<<<<<< HEAD
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-=======
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
->>>>>>> dev
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Command Center
           </h1>
-<<<<<<< HEAD
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Real-time emergency monitoring overview
           </p>
@@ -94,15 +89,6 @@ export default function Dashboard() {
         <div>
           <button className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2.5 rounded-xl font-medium shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base">
             <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
-=======
-          <p className="text-muted-foreground mt-1 text-sm">
-            Real-time emergency monitoring overview
-          </p>
-        </div>
-        <div className="mt-4 md:mt-0">
-          <button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 cursor-pointer shadow-sm">
-            <AlertTriangle className="w-4 h-4" />
->>>>>>> dev
             Trigger Emergency Alert
           </button>
         </div>

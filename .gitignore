@@ -4,7 +4,9 @@ __pycache__/
 venv/
 .env
 db.sqlite3
-*.pkl
+# Allow backend model files to be committed and shared via Git
+# model/ is a local backup directory - ignore its contents
+model/
 .ipynb_checkpoints/
 
 # Node / Frontend

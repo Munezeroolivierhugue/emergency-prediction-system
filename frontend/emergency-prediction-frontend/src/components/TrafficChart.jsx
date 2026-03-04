@@ -83,11 +83,7 @@ export default function TrafficChart({ data = defaultData }) {
                                 backgroundColor: "hsl(var(--card))",
                                 borderRadius: "8px",
                                 border: "1px solid hsl(var(--border))",
-<<<<<<< HEAD
                                 boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-=======
-                                boxShadow: "0 2px 4px -1px rgb(0 0 0 / 0.05)",
->>>>>>> dev
                                 color: "hsl(var(--card-foreground))",
                             }}
                             itemStyle={{ color: "hsl(var(--primary))" }}

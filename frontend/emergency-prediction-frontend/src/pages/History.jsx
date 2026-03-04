@@ -40,14 +40,8 @@ function SeverityBadge({ severity }) {
   };
 
   const key = (severity || "").toLowerCase();
-<<<<<<< HEAD
   const cls = `${base} ${severityStyles[key] || "border-slate-300 bg-slate-50 text-slate-500"}`;
   const dot = dotColors[key] || "bg-slate-400";
-=======
-  const cls = `${base} ${severityStyles[key] || "border-neutral-300 bg-neutral-50 text-neutral-500"
-    }`;
-  const dot = dotColors[key] || "bg-neutral-400";
->>>>>>> dev
 
   return (
     <span className={cls}>
@@ -164,11 +158,7 @@ export default function History() {
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
           Incident History
         </h1>
-<<<<<<< HEAD
         <p className="mt-1 text-sm text-muted-foreground">
-=======
-        <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
->>>>>>> dev
           Browse and filter past incident records
         </p>
       </div>
@@ -177,11 +167,7 @@ export default function History() {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5 w-full">
         <div className="relative flex-1 min-w-0">
           <Search
-<<<<<<< HEAD
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none"
-=======
-            className="absolute left-3 top-1/2 -tranneutral-y-1/2 w-5 h-5 text-gray-400 dark:text-neutral-500 shrink-0 pointer-events-none"
->>>>>>> dev
             strokeWidth={2}
           />
           <input
@@ -189,17 +175,12 @@ export default function History() {
             placeholder="Search by ID or Location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-<<<<<<< HEAD
             className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-card border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 text-sm transition"
-=======
-            className="w-full pl-20 pr-4 py-3 rounded-xl bg-[#F0F2F5] dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-500 focus:border-transparent"
->>>>>>> dev
           />
         </div>
         <div className="relative w-full sm:w-auto">
           <button
             type="button"
-<<<<<<< HEAD
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDropdownOpen((o) => !o); }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border text-foreground w-full sm:min-w-[175px] justify-between hover:bg-muted transition-colors text-sm"
           >
@@ -210,39 +191,14 @@ export default function History() {
             <>
               <div className="fixed inset-0 z-[100]" aria-hidden="true" onClick={() => setDropdownOpen(false)} />
               <ul className="absolute top-full left-0 mt-2 w-full sm:min-w-[175px] rounded-xl bg-card border border-border shadow-lg z-[101] py-1 max-h-60 overflow-auto">
-=======
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setDropdownOpen((o) => !o);
-            }}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#F0F2F5] dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 text-gray-700 dark:text-neutral-200 min-w-[180px] justify-between hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
-          >
-            <span>{severityFilter}</span>
-            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-neutral-400 shrink-0" />
-          </button>
-          {dropdownOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-[100]"
-                aria-hidden="true"
-                onClick={() => setDropdownOpen(false)}
-              />
-              <ul className="absolute top-full left-0 mt-2 min-w-[180px] rounded-xl bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 shadow-lg z-[101] py-1 max-h-60 overflow-auto">
->>>>>>> dev
                 {SEVERITIES.map((s) => (
                   <li key={s}>
                     <button
                       type="button"
                       onClick={(e) => { e.preventDefault(); setSeverityFilter(s); setDropdownOpen(false); }}
                       className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${severityFilter === s
-<<<<<<< HEAD
                           ? "bg-muted text-foreground font-medium"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
-=======
-                        ? "bg-gray-100 dark:bg-neutral-700 text-gray-900 dark:text-white font-medium"
-                        : "text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-700"
->>>>>>> dev
                         }`}
                     >
                       {s}
@@ -255,7 +211,6 @@ export default function History() {
         </div>
       </div>
 
-<<<<<<< HEAD
       {/* ── MOBILE: card list (visible below sm) ──────────────── */}
       <div className="sm:hidden space-y-3 mb-4">
         {loading ? (
@@ -284,35 +239,6 @@ export default function History() {
                     {h}
                   </th>
                 ))}
-=======
-      {/* Table */}
-      <div className="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/50 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-800/80">
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                  ID
-                </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                  Type
-                </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                  Location
-                </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                  Time
-                </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                  Severity
-                </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                  Confidence
-                </th>
-                <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
-                  Status
-                </th>
->>>>>>> dev
               </tr>
             </thead>
             <tbody>
@@ -340,41 +266,11 @@ export default function History() {
                   return (
                     <tr
                       key={row.id}
-<<<<<<< HEAD
                       className={`border-b border-border/60 transition-colors hover:bg-muted/30 ${i % 2 === 0 ? "" : "bg-muted/10"
                         }`}
                     >
                       <td className="px-4 py-3">
                         <span className="text-primary font-medium text-sm cursor-pointer hover:underline">{displayId}</span>
-=======
-                      className={`border-b border-gray-100 dark:border-neutral-700/80 transition-colors ${i % 2 === 0
-                        ? "bg-white dark:bg-neutral-800/30"
-                        : "bg-gray-50/50 dark:bg-neutral-800/50"
-                        }`}
-                    >
-                      <td className="px-5 py-3.5">
-                        <span className="text-red-500 dark:text-red-400 font-medium cursor-pointer hover:underline">
-                          {displayId}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
-                        {row.type || row.incident_type}
-                      </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
-                        {row.location || row.twp || "Unknown"}
-                      </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
-                        {displayTime}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <SeverityBadge severity={row.severity} />
-                      </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
-                        {row.confidence || "N/A"}
-                      </td>
-                      <td className="px-5 py-3.5 text-gray-900 dark:text-neutral-200">
-                        {row.status || "Resolved"}
->>>>>>> dev
                       </td>
                       <td className="px-4 py-3 text-sm text-foreground">{row.type || row.incident_type}</td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">{row.location || row.twp || "Unknown"}</td>
@@ -392,7 +288,6 @@ export default function History() {
 
         {/* Pagination */}
         {totalCount > 0 && (
-<<<<<<< HEAD
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-t border-border text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>Rows per page</span>
@@ -400,73 +295,16 @@ export default function History() {
                 value={String(pageSize)}
                 onChange={(e) => setPageSize(Number(e.target.value))}
                 className="h-8 rounded-md border border-border bg-card px-2 pr-6 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
-=======
-          <div className="flex items-center justify-between gap-4 px-5 py-3 border-t border-gray-100 dark:border-neutral-700 text-xs">
-            {/* Rows per page selector */}
-            <div className="flex items-center gap-2 text-gray-600 dark:text-neutral-400">
-              <span className="hidden sm:inline">Rows per page</span>
-              <select
-                value={String(pageSize)}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                }}
-                className="h-8 rounded-md border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-2 pr-6 text-xs text-gray-700 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-500"
->>>>>>> dev
               >
                 {PAGE_SIZE_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
               </select>
             </div>
-<<<<<<< HEAD
             <span className="text-center">{startIndex}–{endIndex} of {totalCount}</span>
             <div className="flex items-center gap-1">
               <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="p-1.5 rounded-md hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"><ChevronsLeft className="w-4 h-4" /></button>
               <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-1.5 rounded-md hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"><ChevronLeft className="w-4 h-4" /></button>
               <button onClick={() => setCurrentPage((p) => Math.min(pageCount, p + 1))} disabled={currentPage >= pageCount} className="p-1.5 rounded-md hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"><ChevronRight className="w-4 h-4" /></button>
               <button onClick={() => setCurrentPage(pageCount)} disabled={currentPage >= pageCount} className="p-1.5 rounded-md hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"><ChevronsRight className="w-4 h-4" /></button>
-=======
-
-            {/* Range text */}
-            <div className="flex-1 text-center text-gray-500 dark:text-neutral-400">
-              {startIndex}-{endIndex} of {totalCount}
-            </div>
-
-            {/* Pagination controls */}
-            <div className="flex items-center gap-1 text-gray-600 dark:text-neutral-400">
-              <button
-                type="button"
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-              >
-                <ChevronsLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(pageCount, p + 1))
-                }
-                disabled={currentPage >= pageCount}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentPage(pageCount)}
-                disabled={currentPage >= pageCount}
-                className="p-1.5 rounded-md border border-transparent hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-              >
-                <ChevronsRight className="w-4 h-4" />
-              </button>
->>>>>>> dev
             </div>
           </div>
         )}
