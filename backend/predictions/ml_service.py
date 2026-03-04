@@ -33,6 +33,12 @@ class MLService:
                 if module_dir not in sys.path:
                     sys.path.append(module_dir)
                 
+                # --- ALIAS HACK FOR JOBILB __main__ UNPICKLING ---
+                import __main__
+                from .transformers import EmergencyDataTransformer
+                if not hasattr(__main__, 'EmergencyDataTransformer'):
+                    setattr(__main__, 'EmergencyDataTransformer', EmergencyDataTransformer)
+
                 cls._model = joblib.load(cls._model_path)
                 print(f"ML model loaded successfully from {cls._model_path}")
             except (AttributeError, ImportError, TypeError) as e:
@@ -49,7 +55,7 @@ class MLService:
         uses EmergencyDataTransformer to engineer features.
         """
         model = cls.load_model()
-        # Their previous manual encoding is removed and replaced by the Pipeline wrapper logic
+        
         processed_data = {
             'type': data.get('type', 'Unknown'),
             'hour': data.get('hour', 0),
@@ -60,35 +66,10 @@ class MLService:
     
         input_df = pd.DataFrame([processed_data])
         
-        # --- SHAP Model Pipeline Fix ---
-        # The new advanced model's ColumnTransformer was trained on a DataFrame 
-        # that already contained these mapped values. We must provide them here
-        # or the pipeline will fail with "Feature names unseen at fit time"
-        
-        # 1. Aliases needed by calculate_dynamic_severity during training
-        input_df['Incident_Type'] = input_df['type']
-        
-        # 2. Time computations needed by the preprocessor directly
-        input_df['Month'] = data.get('month', 1)
-        input_df['Month_Sin'] = np.sin(2 * np.pi * input_df['Month'] / 12)
-        input_df['Month_Cos'] = np.cos(2 * np.pi * input_df['Month'] / 12)
-        
-        input_df['Hour_Sin'] = np.sin(2 * np.pi * input_df['hour'] / 24)
-        input_df['Hour_Cos'] = np.cos(2 * np.pi * input_df['hour'] / 24)
-        
-        day_mapping = {'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6}
-        day_num = day_mapping.get(input_df['day'][0], 0)
-        input_df['DayOfWeek_Sin'] = np.sin(2 * np.pi * day_num / 7)
-        input_df['DayOfWeek_Cos'] = np.cos(2 * np.pi * day_num / 7)
-        
-        # 3. Spatial computations needed by the preprocessor directly
-        locations = input_df[['lat', 'lng']]
-        kmeans_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ml_models', 'kmeans.pkl')
-        try:
-           kmeans_model = joblib.load(kmeans_path)
-           input_df['Region_Cluster'] = kmeans_model.predict(locations)
-        except:
-           input_df['Region_Cluster'] = 0
+        # The trained model is a Pipeline. The very first step is the custom
+        # EmergencyDataTransformer which automatically engineers Region_Cluster,
+        # Month_Sin, Hour_Sin, etc. before passing it to the ColumnTransformer.
+        # So we just pass the raw input_df directly into the model!
 
         # The advanced model is a Regressor, returning a float 1-10
         raw_prediction = float(model.predict(input_df)[0])
