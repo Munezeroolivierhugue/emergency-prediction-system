@@ -47,19 +47,11 @@ class EmergencyDataTransformer(BaseEstimator, TransformerMixin):
         X_out['DayOfWeek_Sin'] = np.sin(2 * np.pi * X_out['day_num'] / 7)
         X_out['DayOfWeek_Cos'] = np.cos(2 * np.pi * X_out['day_num'] / 7)
         
-        # 5. Month Encoding
-        X_out['Month'] = X_out.get('month', 1) 
-        X_out['Month_Sin'] = np.sin(2 * np.pi * X_out['Month'] / 12)
-        X_out['Month_Cos'] = np.cos(2 * np.pi * X_out['Month'] / 12)
-        
-        # Select final engineered features - MUST match fit time expectation exactly
-        X_out['Incident_Type'] = X_out['type']
-        
+        # Select final engineered features
         features = [
-            'type', 'Incident_Type',
+            'type', 
             'lat', 'lng', 'Region_Cluster',
             'Hour_Sin', 'Hour_Cos', 
-            'Month_Sin', 'Month_Cos',
             'DayOfWeek_Sin', 'DayOfWeek_Cos'
         ]
         return X_out[features]
