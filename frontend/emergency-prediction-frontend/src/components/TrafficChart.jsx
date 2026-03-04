@@ -48,7 +48,7 @@ export default function TrafficChart({ data = defaultData }) {
             <h3 className="text-lg font-bold text-foreground mb-6">
                 Incoming Calls (24h)
             </h3>
-            <div className="h-80 w-full">
+            <div className="h-48 sm:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
                         data={chartData}
@@ -80,10 +80,11 @@ export default function TrafficChart({ data = defaultData }) {
                         />
                         <Tooltip
                             contentStyle={{
-                                backgroundColor: "#fff",
+                                backgroundColor: "hsl(var(--card))",
                                 borderRadius: "8px",
-                                border: "none",
+                                border: "1px solid hsl(var(--border))",
                                 boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                                color: "hsl(var(--card-foreground))",
                             }}
                             itemStyle={{ color: "#DC2626" }}
                         />

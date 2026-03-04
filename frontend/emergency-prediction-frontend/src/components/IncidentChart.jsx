@@ -21,7 +21,7 @@ export default function IncidentChart({ data = defaultData, total }) {
             <h3 className="text-lg font-bold text-foreground mb-4">
                 Incident Types
             </h3>
-            <div className="h-80 w-full relative">
+            <div className="h-52 sm:h-72 w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie

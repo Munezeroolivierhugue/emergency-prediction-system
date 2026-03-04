@@ -23,7 +23,7 @@ export default function SeverityChart({ data = defaultData }) {
             <h3 className="text-lg font-bold text-foreground mb-6">
                 Severity Trend (7 Days)
             </h3>
-            <div className="h-80 w-full">
+            <div className="h-52 sm:h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={chartData}

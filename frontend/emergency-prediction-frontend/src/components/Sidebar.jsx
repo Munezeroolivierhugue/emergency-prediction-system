@@ -41,14 +41,13 @@ export default function Sidebar({ isOpen, onClose }) {
                     onClick={onClose}
                 />
             )}
-            <aside className={`fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 flex flex-col transition-all duration-300 z-50 ${
-                isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-            }`}>
+            <aside className={`fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col transition-all duration-300 z-50 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+                }`}>
                 <button
                     onClick={onClose}
-                    className="lg:hidden absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                    className="lg:hidden absolute top-4 right-4 p-2 rounded-lg hover:bg-muted transition-colors"
                 >
-                    <X className="w-5 h-5 text-gray-600 dark:text-slate-400" />
+                    <X className="w-5 h-5 text-muted-foreground" />
                 </button>
 
                 <div className="p-6">
@@ -90,23 +89,22 @@ export default function Sidebar({ isOpen, onClose }) {
                                 key={item.path}
                                 to={item.path}
                                 onClick={onClose}
-                                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                                    active
-                                        ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium"
-                                        : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-200"
-                                }`}
+                                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${active
+                                    ? "bg-primary/10 text-primary font-medium"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    }`}
                             >
-                                <Icon size={20} className={active ? "text-red-600 dark:text-red-400" : "text-gray-400 dark:text-slate-500 group-hover:text-gray-600 dark:group-hover:text-slate-300"} />
+                                <Icon size={20} className={active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} />
                                 <span>{item.label}</span>
                             </Link>
                         )
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-gray-100 dark:border-slate-800 space-y-4">
+                <div className="p-4 border-t border-border space-y-4">
                     <button
                         onClick={toggleTheme}
-                        className="flex items-center space-x-3 px-4 py-2 w-full text-left rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                        className="flex items-center space-x-3 px-4 py-2 w-full text-left rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     >
                         {dark ? <Sun size={20} /> : <Moon size={20} />}
                         <span>{dark ? "Light Mode" : "Dark Mode"}</span>

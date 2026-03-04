@@ -11,12 +11,12 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex h-screen bg-background transition-colors duration-300">
       <Toaster position="top-right" />
       {!isAuthPage && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${!isAuthPage ? "lg:ml-64" : ""}`}>
         {!isAuthPage && (
-          <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+          <div className="lg:hidden flex items-center justify-between p-4 bg-background border-b border-border">
             <button
               onClick={() => setSidebarOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
@@ -28,7 +28,7 @@ function App() {
             </h1>
           </div>
         )}
-        <main className={`flex-1 overflow-y-auto bg-background ${!isAuthPage ? "p-4 sm:p-6 lg:p-8" : ""}`}>
+        <main className={`flex-1 overflow-y-auto bg-background ${!isAuthPage ? "p-3 sm:p-6 lg:p-8" : ""}`}>
           <AppRoutes />
         </main>
       </div>
