@@ -165,7 +165,7 @@ const NewIncident = () => {
 
                     {/* Date / Time */}
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-wider flex items-center space-x-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center space-x-2">
                             <Clock size={14} />
                             <span>Date / Time</span>
                         </label>
@@ -173,7 +173,7 @@ const NewIncident = () => {
                             type="text"
                             readOnly
                             value={formData.dateTime}
-                            className="w-full bg-muted border border-border rounded-lg px-4 py-2.5 text-muted-foreground cursor-not-allowed outline-none"
+                            className="w-full bg-card border border-border rounded-lg px-4 py-2.5 text-foreground cursor-not-allowed outline-none bg-gray-50 dark:bg-slate-800"
                         />
                     </div>
 

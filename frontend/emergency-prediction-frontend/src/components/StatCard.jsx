@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 
 export default function StatCard({ title, value, subtext, icon: Icon, trend }) {
     return (

@@ -4,7 +4,7 @@ import { Bell, Shield, Database, Monitor } from "lucide-react";
 function Toggle({ checked, onChange, label }) {
   return (
     <label className="flex items-center justify-between gap-4 py-3 cursor-pointer group">
-      <span className="text-sm font-medium text-gray-700 dark:text-neutral-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+      <span className="text-sm font-medium text-foreground transition-colors">
         {label}
       </span>
       <span className="relative inline-flex h-6 w-11 shrink-0 rounded-full overflow-hidden">
@@ -14,12 +14,12 @@ function Toggle({ checked, onChange, label }) {
           onChange={(e) => onChange(e.target.checked)}
           className="sr-only peer"
         />
-        <span className="absolute inset-0 rounded-full border border-gray-300 dark:border-neutral-600 transition-colors duration-200 peer-checked:border-red-500" />
-        <span className="absolute inset-0 rounded-full bg-gray-200 dark:bg-neutral-600 transition-colors duration-200 peer-checked:bg-red-500" />
+        <span className="absolute inset-0 rounded-full border border-border transition-colors duration-200 peer-checked:border-red-500" />
+        <span className="absolute inset-0 rounded-full bg-muted transition-colors duration-200 peer-checked:bg-red-500" />
         <span
-          className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white dark:bg-neutral-100 shadow transition-all duration-200 pointer-events-none
+          className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-background shadow transition-all duration-200 pointer-events-none
             peer-checked:left-[22px]
-            peer-focus-visible:ring-2 peer-focus-visible:ring-red-500 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-offset-neutral-900"
+            peer-focus-visible:ring-2 peer-focus-visible:ring-red-500 peer-focus-visible:ring-offset-2"
         />
       </span>
     </label>
@@ -28,17 +28,17 @@ function Toggle({ checked, onChange, label }) {
 
 function SettingsSection({ icon: Icon, title, description, children }) {
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/50 shadow-sm overflow-hidden">
-      <div className="p-5 border-b border-gray-100 dark:border-neutral-700">
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="p-5 border-b border-border">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-red-50 dark:bg-red-500/20">
             <Icon className="w-5 h-5 text-red-600 dark:text-red-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-foreground">
               {title}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-neutral-400 mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {description}
             </p>
           </div>
@@ -75,13 +75,13 @@ export default function Settings() {
   const [refreshInterval, setRefreshInterval] = useState(30);
 
   return (
-    <div className="min-h-screen bg-[#F4F6F8] dark:bg-[#0F172A] text-gray-900 dark:text-slate-100 p-4 sm:p-6 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 transition-colors duration-300">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
           Settings
         </h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-muted-foreground">
           System configuration and preferences
         </p>
       </div>
@@ -199,10 +199,10 @@ export default function Settings() {
           />
           <div className="pt-3">
             <div className="flex items-center justify-between gap-4 mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-neutral-200">
+              <span className="text-sm font-medium text-foreground">
                 Refresh interval (seconds)
               </span>
-              <span className="text-sm text-gray-500 dark:text-neutral-400 tabular-nums">
+              <span className="text-sm text-muted-foreground tabular-nums">
                 {refreshInterval}s
               </span>
             </div>
@@ -213,7 +213,7 @@ export default function Settings() {
               step={5}
               value={refreshInterval}
               onChange={(e) => setRefreshInterval(Number(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none bg-gray-200 dark:bg-neutral-600 accent-red-500
+              className="w-full h-2 rounded-full appearance-none bg-muted accent-red-500
                 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
                 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-red-500 [&::-webkit-slider-thumb]:cursor-pointer
                 [&::-webkit-slider-thumb]:shadow [&::-webkit-slider-thumb]:border-0"
